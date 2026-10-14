@@ -20,6 +20,8 @@ export interface Dossier {
   message_complements?: string | null;
   envoye_le?: string | null;
   valide_jusqu_au?: string | null;
+  charte_version?: string | null;
+  charte_acceptee_le?: string | null;
 }
 
 export interface Api {
@@ -46,7 +48,8 @@ export interface Api {
   pieces(dossierId: string): Promise<Piece[]>;
   deposer(dossierId: string, code: string, fichier: File): Promise<Piece>;
   supprimerPiece(piece: Piece): Promise<void>;
-  envoyerDossier(dossierId: string, score: number): Promise<void>;
+  /** charte : version de la charte de déontologie acceptée ; phrase : engagement recopié par le candidat */
+  envoyerDossier(dossierId: string, score: number, charte: string, phrase: string): Promise<void>;
   /** Démo seulement : changer d'espace pour visiter */
   changerRole?(role: Role): void;
 }
@@ -180,8 +183,8 @@ function apiSupabase(sb: SupabaseClient): Api {
       if (p.storage_path) await sb.storage.from('pieces').remove([p.storage_path]);
       await sb.from('pieces').delete().eq('id', p.id);
     },
-    async envoyerDossier(dossierId, score) {
-      const { error } = await sb.rpc('envoyer_dossier', { d: dossierId, score });
+    async envoyerDossier(dossierId, score, charte, phrase) {
+      const { error } = await sb.rpc('envoyer_dossier', { d: dossierId, score, charte, phrase });
       if (error) throw new Error(error.message);
     },
   };
@@ -244,7 +247,7 @@ function apiDemo(): Api {
       return p;
     },
     async supprimerPiece(p) { maj((e) => { e.pieces = e.pieces.filter((x) => x.id !== p.id); }); },
-    async envoyerDossier() { maj((e) => { e.dossier.statut = 'envoye'; e.dossier.envoye_le = new Date().toISOString(); }); },
+    async envoyerDossier(_d, _s, charte, _phrase) { maj((e) => { e.dossier.statut = 'envoye'; e.dossier.envoye_le = new Date().toISOString(); e.dossier.charte_version = charte; e.dossier.charte_acceptee_le = new Date().toISOString(); }); },
     changerRole(role) { maj((e) => { e.connecte = true; e.role = role; }); },
   };
 }

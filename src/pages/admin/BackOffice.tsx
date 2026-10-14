@@ -219,6 +219,10 @@ function FicheAdmin({ experts, rechargerListe }: { experts: Expert[]; rechargerL
           <span><span className="discret petit">Entreprise</span><br /><strong>{d.candidat || '-'}</strong></span>
           <span><span className="discret petit">Contact</span><br />{d.contact || '-'}<br /><a href={`mailto:${d.email}`} className="petit">{d.email}</a></span>
           <span><span className="discret petit">Spécialités</span><br />{d.principale ? <><span className="puce-spe ref">{libSpe(d.principale)}</span>{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</span>
+          <span><span className="discret petit">Charte de déontologie</span><br />{d.charte_acceptee_le
+            ? <><span className="badge ok">Acceptée le {dateFr(d.charte_acceptee_le)} · v{d.charte_version}</span>
+              {d.charte_phrase && <><br /><span className="petit discret">« {d.charte_phrase} »</span></>}</>
+            : <span className="badge info">Pas encore acceptée</span>}</span>
           <span><span className="discret petit">Envoyé le · score indicatif</span><br /><span className="num">{dateFr(d.envoye_le)} · {d.score_indicatif ? `${Number(d.score_indicatif).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} / ${referentiel.version.base_score}` : '-'}</span></span>
         </div>
       </div>
