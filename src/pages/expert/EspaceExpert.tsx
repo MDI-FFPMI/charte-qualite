@@ -3,6 +3,7 @@
 // écriture dans notes_portfolio et avis_justificatifs.
 import { useMemo, useState } from 'react';
 import EnTete from '../../components/EnTete';
+import { estDemo } from '../../lib/api';
 import refJson from '../../data/referentiel-v3.json';
 import { dossiersDemo, expertsDemo } from '../../data/demo';
 import { composer } from '../../lib/composition';
@@ -42,6 +43,11 @@ export default function EspaceExpert() {
       <EnTete espace="expert" liens={[{ to: '/expert', label: 'Commission du 8 décembre 2026', end: true }]} />
       <main className="gouttiere">
         <div className="conteneur pile" style={{ gap: '1.5rem' }}>
+          {!estDemo && (
+            <div className="message att" style={{ marginBottom: '1.25rem' }}>
+              Version de travail : cet espace affiche des données d'exemple et n'est pas encore relié à la base. Les dossiers réels apparaîtront ici à la prochaine étape.
+            </div>
+          )}
           <div className="ligne" style={{ justifyContent: 'space-between' }}>
             <div className="pile" style={{ gap: '.3rem' }}>
               <h1 className="equerre">Commission du 8 décembre 2026</h1>

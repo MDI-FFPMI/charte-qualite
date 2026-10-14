@@ -3,6 +3,7 @@
 // l'écriture Supabase des dossiers, experts et sessions sont la prochaine étape.
 import { useMemo, useState } from 'react';
 import EnTete from '../../components/EnTete';
+import { estDemo } from '../../lib/api';
 import refJson from '../../data/referentiel-v3.json';
 import { dossiersDemo, expertsDemo, type DossierDemo } from '../../data/demo';
 import { composer } from '../../lib/composition';
@@ -187,6 +188,11 @@ export default function BackOffice() {
       <EnTete espace="admin" liens={[{ to: '/admin', label: 'Charte Qualité', end: true }]} />
       <main className="gouttiere">
         <div className="conteneur">
+          {!estDemo && (
+            <div className="message att" style={{ marginBottom: '1.25rem' }}>
+              Version de travail : cet espace affiche des données d'exemple et n'est pas encore relié à la base. Les dossiers réels apparaîtront ici à la prochaine étape.
+            </div>
+          )}
           <div className="onglets" role="tablist">
             {ONGLETS.map((o) => <button key={o} role="tab" aria-selected={onglet === o} onClick={() => setOnglet(o)}>{o}</button>)}
           </div>
