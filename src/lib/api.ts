@@ -25,7 +25,8 @@ export interface Dossier {
 export interface Api {
   demo: boolean;
   utilisateur(): Promise<Utilisateur | null>;
-  envoyerLien(email: string): Promise<void>;
+  /** creerCompte : inscription sans paiement (phase de test) */
+  envoyerLien(email: string, creerCompte?: boolean): Promise<void>;
   deconnexion(): Promise<void>;
   /** Prévient l'application quand la connexion change (retour par le lien email, déconnexion) */
   surChangement(cb: () => void): () => void;
@@ -52,10 +53,10 @@ function apiSupabase(sb: SupabaseClient): Api {
       const { data: p } = await sb.from('profiles').select('id,email,prenom,nom,role').eq('id', data.user.id).single();
       return p as Utilisateur;
     },
-    async envoyerLien(email) {
+    async envoyerLien(email, creerCompte = false) {
       const { error } = await sb.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
-        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/connexion` },
+        options: { shouldCreateUser: creerCompte, emailRedirectTo: `${location.origin}/connexion` },
       });
       if (error) {
         const m = error.message.toLowerCase();
@@ -72,10 +73,17 @@ function apiSupabase(sb: SupabaseClient): Api {
       return () => data.subscription.unsubscribe();
     },
     async monDossier() {
-      const { data } = await sb.from('dossiers')
-        .select('id,numero,statut,questions_rouvertes,message_complements,envoye_le,valide_jusqu_au')
-        .order('created_at', { ascending: false }).limit(1).maybeSingle();
-      return data as Dossier | null;
+      const lireDossier = async () => {
+        const { data } = await sb.from('dossiers')
+          .select('id,numero,statut,questions_rouvertes,message_complements,envoye_le,valide_jusqu_au')
+          .order('created_at', { ascending: false }).limit(1).maybeSingle();
+        return data as Dossier | null;
+      };
+      const d = await lireDossier();
+      if (d) return d;
+      // Phase de test : ouverture d'un dossier sans paiement si l'inscription libre est active
+      const { error } = await sb.rpc('ouvrir_mon_dossier');
+      return error ? null : lireDossier();
     },
     async reponses(dossierId) {
       const { data } = await sb.from('reponses').select('question_code,valeur,complements,justification').eq('dossier_id', dossierId);

@@ -14,7 +14,10 @@ export const useSession = () => useContext(SessionCtx);
 function Garde({ roles, children }: { roles: Role[]; children: ReactNode }) {
   const { utilisateur, charge } = useSession();
   if (!charge) return <p className="gouttiere conteneur discret" style={{ paddingBlock: '3rem' }}>Chargement…</p>;
-  if (!utilisateur) return <Navigate to="/connexion" replace />;
+  if (!utilisateur) {
+    const espace = roles.includes('expert') ? 'expert' : roles.includes('admin') ? 'admin' : 'candidat';
+    return <Navigate to={`/connexion?espace=${espace}`} replace />;
+  }
   if (!roles.includes(utilisateur.role)) return <Navigate to={accueilDuRole(utilisateur.role)} replace />;
   return <>{children}</>;
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import EnTete from '../../components/EnTete';
 import ref from '../../data/referentiel-v3.json';
@@ -7,6 +8,7 @@ import type { Referentiel } from '../../lib/types';
 const referentiel = ref as Referentiel;
 
 export default function Accueil() {
+  const [paiementFerme, setPaiementFerme] = useState(false);
   const rubriques = referentiel.rubriques.filter((r) => r.questions.some((q) => q.points_max > 0));
   const total = rubriques.reduce((s, r) => s + r.questions.reduce((t, q) => t + q.points_max, 0), 0);
   const nbElim = referentiel.rubriques.flatMap((r) => r.questions).filter((q) => q.statut === 'eliminatoire').length;
@@ -31,10 +33,18 @@ export default function Accueil() {
                 <div className="prix num">199 €</div>
                 <p className="discret">149 € pour les adhérents FFPMI</p>
               </div>
-              <a className="bouton principal" href={lienPaiement || '#paiement'} onClick={(e) => { if (!lienPaiement) e.preventDefault(); }}>
-                Déposer ma candidature
-              </a>
-              {estDemo && <p className="petit discret">Dans l'aperçu, le paiement Stripe est désactivé. Utilisez « Reprendre mon dossier ».</p>}
+              {!lienPaiement && !estDemo ? (
+                <Link to="/connexion?espace=inscription" className="bouton principal">Déposer ma candidature</Link>
+              ) : (
+                <a className="bouton principal" href={lienPaiement || '#paiement'} onClick={(e) => { if (!lienPaiement) { e.preventDefault(); setPaiementFerme(true); } }}>
+                  Déposer ma candidature
+                </a>
+              )}
+              {paiementFerme && (
+                <div className="message att" role="status">
+                  Les candidatures en ligne ouvrent prochainement. {estDemo ? 'Dans cet aperçu, utilisez « Reprendre mon dossier ».' : 'Inscrivez-vous comme beta-testeur pour être prévenu de l\'ouverture.'}
+                </div>
+              )}
               <Link to="/connexion" className="bouton secondaire">Reprendre mon dossier</Link>
             </div>
           </section>
@@ -68,6 +78,15 @@ export default function Accueil() {
           </section>
         </div>
       </main>
+      <footer className="gouttiere" style={{ borderTop: '1px solid var(--trait)', paddingBlock: '1.25rem' }}>
+        <div className="conteneur ligne petit discret" style={{ justifyContent: 'space-between' }}>
+          <span>Charte Qualité Photographe Professionnel de France · FFPMI · Gestion MDI - Métiers de l'Image</span>
+          <span className="ligne" style={{ gap: '1rem' }}>
+            <Link to="/connexion?espace=expert">Espace expert</Link>
+            <Link to="/connexion?espace=admin">Back-office</Link>
+          </span>
+        </div>
+      </footer>
     </>
   );
 }
