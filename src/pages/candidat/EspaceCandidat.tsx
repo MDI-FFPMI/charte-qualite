@@ -3,8 +3,6 @@ import { Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-rout
 import EnTete from '../../components/EnTete';
 import QuestionChamp from '../../components/QuestionChamp';
 import refJson from '../../data/referentiel-v3.json';
-import EncadreCharte from '../../components/EncadreCharte';
-import { CHARTE_VERSION } from '../../data/charte-deontologie';
 import { api, type Dossier } from '../../lib/api';
 import { bilanDossier, estAffichee, valeursChoisies } from '../../lib/scoring';
 import type { Piece, Referentiel, Reponse, Reponses } from '../../lib/types';
@@ -201,18 +199,14 @@ function PageRubrique({ e }: { e: Etat }) {
 
 function PageEnvoi({ e }: { e: Etat }) {
   const [coches, setCoches] = useState<boolean[]>(ref.attestation.map(() => false));
-  const [phrase, setPhrase] = useState('');
-  const [charteOk, setCharteOk] = useState(false);
   const [erreur, setErreur] = useState('');
   const [envoi, setEnvoi] = useState(false);
   const d = e.dossier!;
-  const tout = coches.every(Boolean) && charteOk;
+  const tout = coches.every(Boolean);
   const bilan = useMemo(() => bilanDossier(ref, e.reponses, e.pieces, tout), [e.reponses, e.pieces, tout]);
   const elimManquants = bilan.justificatifsManquants.filter((q) => q.statut === 'eliminatoire');
   const valoManquants = bilan.justificatifsManquants.filter((q) => q.statut !== 'eliminatoire');
   const lien = (code: string) => `/candidat/rubrique/${code.split('.')[0]}`;
-  const vous = (e.reponses['0.1']?.valeur ?? {}) as Record<string, string>;
-  const ent = (e.reponses['0.2']?.valeur ?? {}) as Record<string, string>;
 
   if (!modifiable(d)) {
     return (
@@ -228,7 +222,7 @@ function PageEnvoi({ e }: { e: Etat }) {
 
   const envoyer = async () => {
     setErreur(''); setEnvoi(true);
-    try { await api.envoyerDossier(d.id, bilan.scoreIndicatif, CHARTE_VERSION, phrase.trim()); await e.recharger(); }
+    try { await api.envoyerDossier(d.id, bilan.scoreIndicatif); await e.recharger(); }
     catch (err) { setErreur((err as Error).message); }
     setEnvoi(false);
   };
@@ -270,16 +264,13 @@ function PageEnvoi({ e }: { e: Etat }) {
         ))}
       </div>
 
-      <EncadreCharte accepte={charteOk} onChange={setCharteOk} phrase={phrase} setPhrase={setPhrase}
-        signataire={[vous.prenom, vous.nom].filter(Boolean).join(' ')} entreprise={ent.denomination ?? ''} />
-
       <div className="ligne" style={{ justifyContent: 'space-between' }}>
         <p className="discret num">Score indicatif : {bilan.scoreIndicatif.toLocaleString('fr-FR')} sur {ref.version.base_score}, hors notes de la commission</p>
         <button className="bouton principal" disabled={!bilan.envoyable || envoi} onClick={envoyer}>
           {envoi ? 'Envoi…' : 'Envoyer mon dossier'}
         </button>
       </div>
-      {!tout && bilan.questionsSansReponse.length === 0 && <p className="petit discret" style={{ textAlign: 'right' }}>Cochez les quatre engagements de l'attestation et validez votre engagement à la charte de déontologie pour envoyer.</p>}
+      {!tout && bilan.questionsSansReponse.length === 0 && <p className="petit discret" style={{ textAlign: 'right' }}>Cochez les quatre engagements pour envoyer.</p>}
       {erreur && <div className="message erreur" role="alert">{erreur}</div>}
     </div>
   );

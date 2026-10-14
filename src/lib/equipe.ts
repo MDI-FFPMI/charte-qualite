@@ -34,9 +34,6 @@ export interface DossierLigne {
   principale: string;
   autres: string[];
   verificateurs: Verif[];
-  charte_version?: string | null;
-  charte_acceptee_le?: string | null;
-  charte_phrase?: string | null;
 }
 
 export interface AvisLigne { avis: Avis; commentaire?: string | null }
@@ -102,11 +99,10 @@ const verifier = (error: { message: string } | null, msg?: string) => {
 type LigneDossier = {
   id: string; numero: string; statut: StatutDossier; envoye_le: string | null; score_indicatif: number | null;
   questions_rouvertes: string[]; message_complements: string | null;
-  charte_version?: string | null; charte_acceptee_le?: string | null; charte_phrase?: string | null;
   profiles: { email: string; prenom: string | null; nom: string | null } | null;
 };
 type LigneVerif = Omit<Verif, 'nom'> & { dossier_id: string };
-const CHAMPS_DOSSIER = 'id,numero,statut,envoye_le,score_indicatif,questions_rouvertes,message_complements,charte_version,charte_acceptee_le,charte_phrase,profiles(email,prenom,nom)';
+const CHAMPS_DOSSIER = 'id,numero,statut,envoye_le,score_indicatif,questions_rouvertes,message_complements,profiles(email,prenom,nom)';
 
 function apiEquipeSupabase(): ApiEquipe {
   const c = sb!;
@@ -129,7 +125,6 @@ function apiEquipeSupabase(): ApiEquipe {
       return {
         id: d.id, numero: d.numero, statut: d.statut, envoye_le: d.envoye_le, score_indicatif: d.score_indicatif,
         questions_rouvertes: d.questions_rouvertes ?? [], message_complements: d.message_complements,
-        charte_version: d.charte_version, charte_acceptee_le: d.charte_acceptee_le, charte_phrase: d.charte_phrase,
         candidat: ent.nom_commercial || ent.denomination || nomComplet(vous) || nomComplet(d.profiles) || d.profiles?.email || '',
         contact: nomComplet(vous) || nomComplet(d.profiles),
         email: d.profiles?.email ?? '',
@@ -359,7 +354,6 @@ function apiEquipeDemo(): ApiEquipe {
   const ligne = (d: (typeof dossiers)[number]): DossierLigne => ({
     id: d.id, numero: d.numero, statut: d.statut, envoye_le: d.recu, score_indicatif: d.score || null,
     questions_rouvertes: d.questions_rouvertes, message_complements: d.message_complements,
-    charte_version: d.statut === 'brouillon' ? null : '2026-10', charte_acceptee_le: d.statut === 'brouillon' ? null : d.recu,
     candidat: d.candidat, contact: 'Camille Exemple', email: 'exemple@studio-photo.fr', ville: d.ville,
     principale: d.principale, autres: d.autres,
     verificateurs: verifs.filter((v) => v.dossier_id === d.id).map((v) => ({ ...v, nom: nomDe(v.expert_id) })),

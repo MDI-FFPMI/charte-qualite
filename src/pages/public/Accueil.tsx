@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import EnTete from '../../components/EnTete';
-import logoFfpmi from '../../assets/logo-ffpmi.png';
-import logoMdi from '../../assets/logo-mdi.png';
 import ref from '../../data/referentiel-v3.json';
 import { lienPaiement, estDemo } from '../../lib/api';
 import type { Referentiel } from '../../lib/types';
@@ -82,11 +80,7 @@ export default function Accueil() {
       </main>
       <footer className="gouttiere" style={{ borderTop: '1px solid var(--trait)', paddingBlock: '1.25rem' }}>
         <div className="conteneur ligne petit discret" style={{ justifyContent: 'space-between' }}>
-          <span className="ligne" style={{ gap: '.9rem', flexWrap: 'nowrap' }}>
-            <img src={logoFfpmi} alt="FFPMI" style={{ height: 22 }} />
-            <img src={logoMdi} alt="MDI - Métiers de l'Image" style={{ height: 30 }} />
-            <span>Une charte de la FFPMI, gérée par son organisme MDI - Métiers de l'Image</span>
-          </span>
+          <span>Charte Qualité Photographe Professionnel de France · FFPMI · Gestion MDI - Métiers de l'Image</span>
           <span className="ligne" style={{ gap: '1rem' }}>
             <Link to="/connexion?espace=expert">Espace expert</Link>
             <Link to="/connexion?espace=admin">Back-office</Link>
