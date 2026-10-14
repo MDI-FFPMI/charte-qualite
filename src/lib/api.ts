@@ -20,6 +20,8 @@ export interface Dossier {
   message_complements?: string | null;
   envoye_le?: string | null;
   valide_jusqu_au?: string | null;
+  charte_version?: string | null;
+  charte_acceptee_le?: string | null;
 }
 
 export interface Api {
@@ -31,6 +33,8 @@ export interface Api {
   connexion(email: string, motDePasse: string): Promise<void>;
   /** Création de compte candidat avec mot de passe (inscription libre) */
   inscription(email: string, motDePasse: string): Promise<{ aConfirmer: boolean }>;
+  /** Connexion ou création de compte avec Google */
+  connexionGoogle(): Promise<void>;
   /** Email de réinitialisation du mot de passe */
   motDePasseOublie(email: string): Promise<void>;
   /** Nouveau mot de passe pour l'utilisateur connecté */
@@ -44,7 +48,8 @@ export interface Api {
   pieces(dossierId: string): Promise<Piece[]>;
   deposer(dossierId: string, code: string, fichier: File): Promise<Piece>;
   supprimerPiece(piece: Piece): Promise<void>;
-  envoyerDossier(dossierId: string, score: number): Promise<void>;
+  /** charte : version de la charte de déontologie acceptée ; phrase : engagement recopié par le candidat */
+  envoyerDossier(dossierId: string, score: number, charte: string, phrase: string): Promise<void>;
   /** Démo seulement : changer d'espace pour visiter */
   changerRole?(role: Role): void;
 }
@@ -99,6 +104,16 @@ function apiSupabase(sb: SupabaseClient): Api {
       if (data.user && !data.session && (data.user.identities ?? []).length === 0)
         throw new Error('Un compte existe déjà avec cette adresse. Connectez-vous avec votre mot de passe, ou utilisez « Mot de passe oublié ».');
       return { aConfirmer: !data.session };
+    },
+    async connexionGoogle() {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${location.origin}/connexion`, queryParams: { prompt: 'select_account' } },
+      });
+      if (error) {
+        if (error.message.toLowerCase().includes('not enabled')) throw new Error("La connexion avec Google n'est pas encore activée.");
+        throw new Error(`Connexion Google impossible : ${error.message}`);
+      }
     },
     async motDePasseOublie(email) {
       const { error } = await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${location.origin}/mot-de-passe` });
@@ -168,8 +183,8 @@ function apiSupabase(sb: SupabaseClient): Api {
       if (p.storage_path) await sb.storage.from('pieces').remove([p.storage_path]);
       await sb.from('pieces').delete().eq('id', p.id);
     },
-    async envoyerDossier(dossierId, score) {
-      const { error } = await sb.rpc('envoyer_dossier', { d: dossierId, score });
+    async envoyerDossier(dossierId, score, charte, phrase) {
+      const { error } = await sb.rpc('envoyer_dossier', { d: dossierId, score, charte, phrase });
       if (error) throw new Error(error.message);
     },
   };
@@ -218,6 +233,7 @@ function apiDemo(): Api {
     async connexion() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); },
     async inscription() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); return { aConfirmer: false }; },
     async motDePasseOublie() {},
+    async connexionGoogle() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); },
     async changerMotDePasse() {},
     async deconnexion() { maj((e) => { e.connecte = false; }); },
     surChangement() { return () => {}; },
@@ -231,7 +247,7 @@ function apiDemo(): Api {
       return p;
     },
     async supprimerPiece(p) { maj((e) => { e.pieces = e.pieces.filter((x) => x.id !== p.id); }); },
-    async envoyerDossier() { maj((e) => { e.dossier.statut = 'envoye'; e.dossier.envoye_le = new Date().toISOString(); }); },
+    async envoyerDossier(_d, _s, charte, _phrase) { maj((e) => { e.dossier.statut = 'envoye'; e.dossier.envoye_le = new Date().toISOString(); e.dossier.charte_version = charte; e.dossier.charte_acceptee_le = new Date().toISOString(); }); },
     changerRole(role) { maj((e) => { e.connecte = true; e.role = role; }); },
   };
 }

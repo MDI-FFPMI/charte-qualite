@@ -37,12 +37,14 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
   const fichier = async (e: ChangeEvent<HTMLInputElement>) => {
     const fichiers = Array.from(e.target.files ?? []);
     e.target.value = '';
+    const erreurs: string[] = [];
     for (const f of fichiers) {
-      if (f.size > 10 * 1024 * 1024) { setDepot(`${f.name} dépasse 10 Mo.`); continue; }
-      if (!['application/pdf', 'image/jpeg', 'image/png'].includes(f.type)) { setDepot(`${f.name} : formats acceptés PDF, JPG ou PNG.`); continue; }
+      if (f.size > 10 * 1024 * 1024) { erreurs.push(`${f.name} dépasse 10 Mo.`); continue; }
+      if (!['application/pdf', 'image/jpeg', 'image/png'].includes(f.type)) { erreurs.push(`${f.name} : formats acceptés PDF, JPG ou PNG.`); continue; }
       setDepot('envoi');
-      try { await onDepot(f); setDepot(''); } catch (err) { setDepot((err as Error).message); }
+      try { await onDepot(f); } catch (err) { erreurs.push(`${f.name} : ${(err as Error).message}`); }
     }
+    setDepot(erreurs.join(' '));
   };
 
   const valeurTexte = typeof r.valeur === 'string' ? r.valeur : '';
@@ -297,9 +299,9 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
             <div className="ligne">
               <label className="depot">
                 <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onChange={fichier} />
-                + Déposer un fichier
+                {mesPieces.length ? '+ Ajouter un autre fichier' : '+ Déposer un ou plusieurs fichiers'}
               </label>
-              <span className="petit discret">PDF, JPG ou PNG, 10 Mo maximum</span>
+              <span className="petit discret">PDF, JPG ou PNG, 10 Mo maximum par fichier</span>
             </div>
           )}
           {depot === 'envoi' && <span className="petit discret">Envoi en cours…</span>}
