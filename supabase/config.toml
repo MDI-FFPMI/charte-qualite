@@ -1,0 +1,12 @@
+# Extrait de configuration Supabase CLI
+# Stripe appelle la fonction sans jeton Supabase : la sécurité repose sur la signature Stripe.
+[functions.stripe-webhook]
+verify_jwt = false
+
+[auth]
+site_url = "https://charte.ffpmi.eu"
+additional_redirect_urls = ["http://localhost:5173"]
+
+[auth.email]
+# Connexion sans mot de passe par lien magique
+enable_signup = false

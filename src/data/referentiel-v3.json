@@ -1,0 +1,1477 @@
+{
+  "version": {
+    "id": "V3",
+    "libelle": "Référentiel V3 - octobre 2026",
+    "seuil_obtention": 100,
+    "base_score": 150,
+    "validite_mois": 24
+  },
+  "specialites": [
+    {
+      "value": "portrait",
+      "label": "Portrait"
+    },
+    {
+      "value": "famille",
+      "label": "Famille"
+    },
+    {
+      "value": "grossesse",
+      "label": "Grossesse"
+    },
+    {
+      "value": "nouveau-ne",
+      "label": "Nouveau-né"
+    },
+    {
+      "value": "enfants",
+      "label": "Enfants"
+    },
+    {
+      "value": "mariage",
+      "label": "Mariage"
+    },
+    {
+      "value": "evenementiel",
+      "label": "Événementiel"
+    },
+    {
+      "value": "corporate",
+      "label": "Corporate et portrait professionnel"
+    },
+    {
+      "value": "identite",
+      "label": "Photo d'identité"
+    },
+    {
+      "value": "scolaire",
+      "label": "Scolaire et crèche"
+    },
+    {
+      "value": "boudoir",
+      "label": "Boudoir"
+    },
+    {
+      "value": "mode",
+      "label": "Mode et beauté"
+    },
+    {
+      "value": "produit",
+      "label": "Produit et packshot"
+    },
+    {
+      "value": "culinaire",
+      "label": "Culinaire"
+    },
+    {
+      "value": "architecture",
+      "label": "Architecture et immobilier"
+    },
+    {
+      "value": "reportage",
+      "label": "Reportage"
+    },
+    {
+      "value": "sport",
+      "label": "Sport"
+    },
+    {
+      "value": "animalier",
+      "label": "Animalier"
+    },
+    {
+      "value": "aquatique",
+      "label": "Aquatique"
+    },
+    {
+      "value": "auteur",
+      "label": "Photographie d'auteur"
+    },
+    {
+      "value": "autre",
+      "label": "Autre"
+    }
+  ],
+  "rubriques": [
+    {
+      "numero": 0,
+      "titre": "Vos coordonnées",
+      "intro": "Ces informations figurent sur votre attestation, vos courriers et, si vous l'acceptez, dans l'annuaire des titulaires. Elles ne rapportent pas de points.",
+      "questions": [
+        {
+          "code": "0.1",
+          "libelle": "Vous",
+          "type": "coordonnees",
+          "statut": "informatif",
+          "points_max": 0,
+          "aide": "La personne qui représente l'entreprise. Votre adresse email est celle de votre compte.",
+          "champs": [
+            {
+              "key": "prenom",
+              "label": "Prénom",
+              "type": "text",
+              "requis": true
+            },
+            {
+              "key": "nom",
+              "label": "Nom",
+              "type": "text",
+              "requis": true
+            },
+            {
+              "key": "telephone",
+              "label": "Téléphone",
+              "type": "tel",
+              "requis": true
+            },
+            {
+              "key": "fonction",
+              "label": "Fonction (gérant, président...)",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "code": "0.2",
+          "libelle": "Votre entreprise",
+          "type": "coordonnees",
+          "statut": "informatif",
+          "points_max": 0,
+          "champs": [
+            {
+              "key": "denomination",
+              "label": "Dénomination de l'entreprise",
+              "type": "text",
+              "requis": true
+            },
+            {
+              "key": "nom_commercial",
+              "label": "Nom commercial (si différent)",
+              "type": "text"
+            },
+            {
+              "key": "forme",
+              "label": "Forme juridique",
+              "type": "select",
+              "requis": true,
+              "options": [
+                "Micro-entreprise",
+                "Entreprise individuelle (EI)",
+                "EURL",
+                "SARL",
+                "SASU",
+                "SAS",
+                "Autre"
+              ]
+            },
+            {
+              "key": "siret",
+              "label": "Numéro SIRET",
+              "type": "siret",
+              "requis": true
+            },
+            {
+              "key": "adresse",
+              "label": "Adresse",
+              "type": "text",
+              "requis": true,
+              "largeur": "pleine"
+            },
+            {
+              "key": "complement",
+              "label": "Complément d'adresse",
+              "type": "text",
+              "largeur": "pleine"
+            },
+            {
+              "key": "cp",
+              "label": "Code postal",
+              "type": "cp",
+              "requis": true
+            },
+            {
+              "key": "ville",
+              "label": "Ville",
+              "type": "text",
+              "requis": true
+            }
+          ]
+        },
+        {
+          "code": "0.3",
+          "libelle": "Votre présence en ligne",
+          "type": "coordonnees",
+          "statut": "informatif",
+          "points_max": 0,
+          "aide": "Ces liens figureront dans l'annuaire des titulaires. La commission les consultera aussi pour apprécier votre présence professionnelle (rubrique 9).",
+          "champs": [
+            {
+              "key": "site",
+              "label": "Site internet",
+              "type": "url"
+            },
+            {
+              "key": "instagram",
+              "label": "Instagram",
+              "type": "instagram"
+            },
+            {
+              "key": "facebook",
+              "label": "Facebook",
+              "type": "url"
+            },
+            {
+              "key": "autre",
+              "label": "Autre lien (LinkedIn, Pinterest...)",
+              "type": "url"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 1,
+      "titre": "Statut juridique et assurances",
+      "intro": "Votre statut, vos assurances et vos obligations légales.",
+      "questions": [
+        {
+          "code": "1.1",
+          "libelle": "Quelle est votre clientèle ?",
+          "type": "multi_choice",
+          "statut": "informatif",
+          "points_max": 0,
+          "options": [
+            {
+              "value": "particuliers",
+              "label": "Particuliers",
+              "points": 0
+            },
+            {
+              "value": "professionnels",
+              "label": "Professionnels (entreprises, institutions)",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "1.2",
+          "libelle": "Exercez-vous la photographie en activité principale ou secondaire ?",
+          "type": "choice",
+          "statut": "informatif",
+          "points_max": 0,
+          "options": [
+            {
+              "value": "principale",
+              "label": "Activité principale",
+              "points": 0
+            },
+            {
+              "value": "secondaire",
+              "label": "Activité secondaire",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "1.3",
+          "libelle": "Votre entreprise est-elle immatriculée avec une activité de photographie déclarée ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 4,
+          "justificatifs": "Extrait Kbis, extrait RNE ou avis de situation INSEE de moins de 3 mois",
+          "preuve_attendue": true,
+          "aide": "Ce document sert aussi à établir votre ancienneté : il ne vous sera pas redemandé."
+        },
+        {
+          "code": "1.4",
+          "libelle": "Êtes-vous à jour de vos obligations sociales ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 2,
+          "justificatifs": "Attestation de vigilance URSSAF de moins de 6 mois",
+          "preuve_attendue": true
+        },
+        {
+          "code": "1.5",
+          "libelle": "Êtes-vous assuré en responsabilité civile professionnelle ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 3,
+          "justificatifs": "Attestation RC Pro en cours de validité",
+          "preuve_attendue": true
+        },
+        {
+          "code": "1.6",
+          "libelle": "Avez-vous désigné un médiateur de la consommation ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 2,
+          "justificatifs": "Attestation d'adhésion ou mention dans vos CGV",
+          "preuve_attendue": true,
+          "aide": "Obligatoire dès que vous travaillez avec des particuliers.",
+          "condition": {
+            "q": "1.1",
+            "op": "includes_any",
+            "values": [
+              "particuliers"
+            ]
+          }
+        },
+        {
+          "code": "1.7",
+          "libelle": "Disposez-vous d'un compte bancaire professionnel dédié ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 1,
+          "aide": "Déclaration sur l'honneur : aucun RIB n'est demandé."
+        },
+        {
+          "code": "1.8",
+          "libelle": "Disposez-vous d'une assurance matériel (bris, vol) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 1,
+          "justificatifs": "Attestation d'assurance",
+          "preuve_attendue": true
+        },
+        {
+          "code": "1.9",
+          "libelle": "Disposez-vous d'une prévoyance professionnelle (arrêt de travail, invalidité) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Attestation de contrat de prévoyance",
+          "preuve_attendue": true
+        },
+        {
+          "code": "1.10",
+          "libelle": "Travaillez-vous avec des salariés ou des collaborateurs réguliers (assistant, retoucheur, second photographe) ?",
+          "type": "yes_no",
+          "statut": "informatif",
+          "points_max": 0,
+          "complements": [
+            {
+              "key": "detail",
+              "label": "Nombre et fonctions",
+              "type": "text",
+              "si": "oui"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "titre": "Expérience et activité",
+      "intro": "Votre parcours et vos spécialités. Elles adaptent la suite du questionnaire.",
+      "questions": [
+        {
+          "code": "2.1",
+          "libelle": "En quelle année avez-vous démarré votre activité de photographe professionnel ?",
+          "type": "year",
+          "statut": "valorise",
+          "points_max": 5,
+          "aide": "Moins de 2 ans : 0 point - 2 à 4 ans : 2 points - 5 à 9 ans : 4 points - 10 ans et plus : 5 points.",
+          "justificatifs": "Aucun nouveau document si la date figure sur le justificatif de la question 1.3. Activité antérieure sous une autre structure ou en salariat : attestation ou certificat de travail.",
+          "options": [
+            {
+              "value": "0",
+              "label": "moins de 2 ans",
+              "points": 0
+            },
+            {
+              "value": "2",
+              "label": "2 à 4 ans",
+              "points": 2
+            },
+            {
+              "value": "5",
+              "label": "5 à 9 ans",
+              "points": 4
+            },
+            {
+              "value": "10",
+              "label": "10 ans et plus",
+              "points": 5
+            }
+          ]
+        },
+        {
+          "code": "2.2",
+          "libelle": "Quelles spécialités pratiquez-vous régulièrement ? Indiquez votre spécialité principale.",
+          "type": "specialites",
+          "statut": "informatif",
+          "points_max": 0
+        },
+        {
+          "code": "2.3",
+          "libelle": "Dans quels lieux réalisez-vous vos prises de vue ?",
+          "type": "multi_choice",
+          "statut": "informatif",
+          "points_max": 0,
+          "options": [
+            {
+              "value": "studio",
+              "label": "Studio",
+              "points": 0
+            },
+            {
+              "value": "domicile",
+              "label": "Domicile du client",
+              "points": 0
+            },
+            {
+              "value": "exterieur",
+              "label": "Extérieur",
+              "points": 0
+            },
+            {
+              "value": "reception",
+              "label": "Lieux de réception",
+              "points": 0
+            },
+            {
+              "value": "entreprise",
+              "label": "Locaux d'entreprise",
+              "points": 0
+            },
+            {
+              "value": "sante",
+              "label": "Maternité ou établissement de santé",
+              "points": 0
+            },
+            {
+              "value": "autre",
+              "label": "Autre",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "2.4",
+          "libelle": "Combien de séances ou prestations réalisez-vous par an ?",
+          "type": "choice",
+          "statut": "informatif",
+          "points_max": 0,
+          "options": [
+            {
+              "value": "lt20",
+              "label": "Moins de 20",
+              "points": 0
+            },
+            {
+              "value": "20-50",
+              "label": "20 à 50",
+              "points": 0
+            },
+            {
+              "value": "51-100",
+              "label": "51 à 100",
+              "points": 0
+            },
+            {
+              "value": "101-200",
+              "label": "101 à 200",
+              "points": 0
+            },
+            {
+              "value": "gt200",
+              "label": "Plus de 200",
+              "points": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "titre": "Formation et qualifications",
+      "intro": "Votre formation initiale, vos titres et votre formation continue.",
+      "questions": [
+        {
+          "code": "3.1",
+          "libelle": "Quel est votre parcours de formation en photographie ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 3,
+          "justificatifs": "Copie du ou des diplômes (plusieurs fichiers possibles)",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "diplome",
+              "label": "Diplôme ou titre en photographie (CAP, BP, BTS, école, titre RNCP)",
+              "points": 3
+            },
+            {
+              "value": "certification",
+              "label": "Certification professionnelle",
+              "points": 2
+            },
+            {
+              "value": "autodidacte",
+              "label": "Autodidacte",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "3.2",
+          "libelle": "Détenez-vous un titre de l'artisanat ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Copie du titre ou attestation de la Chambre de métiers",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "artisan-art",
+              "label": "Artisan d'art",
+              "points": 1
+            },
+            {
+              "value": "maitre-artisan",
+              "label": "Maître artisan",
+              "points": 2
+            },
+            {
+              "value": "maitre-artisan-art",
+              "label": "Maître artisan d'art",
+              "points": 2
+            },
+            {
+              "value": "aucun",
+              "label": "Aucun",
+              "points": 0,
+              "exclusive": true
+            }
+          ]
+        },
+        {
+          "code": "3.3",
+          "libelle": "Avez-vous suivi au moins 16 heures de formation professionnelle au cours des 24 derniers mois ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 4,
+          "justificatifs": "Attestations de formation (plusieurs fichiers possibles)",
+          "preuve_attendue": true
+        },
+        {
+          "code": "3.4",
+          "libelle": "Avez-vous suivi une formation à la sécurité propre à votre spécialité (sécurité et manipulation du nouveau-né, sécurité aquatique, premiers secours) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Attestation de formation",
+          "preuve_attendue": true,
+          "condition": {
+            "q": "2.2",
+            "op": "includes_any",
+            "values": [
+              "nouveau-ne",
+              "grossesse",
+              "aquatique"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "titre": "Portfolio et reconnaissance",
+      "intro": "Votre travail, jugé par la commission sur des galeries complètes.",
+      "questions": [
+        {
+          "code": "4.1",
+          "libelle": "Partagez trois galeries complètes de séances récentes (moins de 24 mois), telles que livrées à vos clients",
+          "type": "url_list",
+          "statut": "valorise",
+          "points_max": 20,
+          "note_par_experts": true,
+          "aide": "Pas de sélection de vos meilleures images : la commission juge la constance de votre travail. Si vous déclarez plusieurs spécialités, au moins deux doivent être représentées. Aucun floutage n'est nécessaire, les galeries sont consultées sous confidentialité. Utilisez des galeries pour lesquelles vous avez l'accord de vos clients.",
+          "justificatifs": "3 liens différents, avec mot de passe si besoin",
+          "complements": [
+            {
+              "key": "mot_de_passe",
+              "label": "Mot de passe éventuel des galeries",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "code": "4.2",
+          "libelle": "Avez-vous exposé votre travail dans un cadre professionnel (exposition, salon, festival) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Article de presse, affiche ou invitation, photo du vernissage, lien",
+          "preuve_attendue": true
+        },
+        {
+          "code": "4.3",
+          "libelle": "Avez-vous participé à des concours ou obtenu des distinctions professionnelles ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 4,
+          "justificatifs": "Diplôme, palmarès, certificat ou lien (plusieurs fichiers possibles)",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "participation",
+              "label": "Participation à un concours professionnel",
+              "points": 1
+            },
+            {
+              "value": "medaille",
+              "label": "Médaille ou classement",
+              "points": 2
+            },
+            {
+              "value": "qualification",
+              "label": "Titre de qualification professionnelle (ex. Portraitiste de France)",
+              "points": 2
+            },
+            {
+              "value": "mof",
+              "label": "Meilleur Ouvrier de France",
+              "points": 3
+            },
+            {
+              "value": "aucun",
+              "label": "Aucun",
+              "points": 0,
+              "exclusive": true
+            }
+          ]
+        },
+        {
+          "code": "4.4",
+          "libelle": "Vos clients peuvent-ils laisser des avis sur une plateforme indépendante ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "aide": "Seuls les liens vers une plateforme indépendante sont acceptés (Google, par exemple). Les avis hébergés sur votre propre site ne comptent pas.",
+          "justificatifs": "Lien vers la page d'avis",
+          "preuve_attendue": true,
+          "complements": [
+            {
+              "key": "nb_avis",
+              "label": "Nombre d'avis",
+              "type": "number",
+              "si": "oui"
+            },
+            {
+              "key": "note",
+              "label": "Note moyenne (sur 5)",
+              "type": "number",
+              "si": "oui"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 5,
+      "titre": "Relation client",
+      "intro": "Vos documents contractuels et la façon dont vous accompagnez vos clients.",
+      "questions": [
+        {
+          "code": "5.1",
+          "libelle": "Faites-vous signer un contrat ou un bon de commande écrit à vos clients ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 3,
+          "justificatifs": "Modèle vierge, ou exemple avec les données du client masquées",
+          "preuve_attendue": true
+        },
+        {
+          "code": "5.2",
+          "libelle": "Vos conditions générales de vente sont-elles communiquées avant toute commande ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 2,
+          "justificatifs": "Lien ou document",
+          "preuve_attendue": true
+        },
+        {
+          "code": "5.3",
+          "libelle": "Vos clients connaissent-ils vos prix ou leur mode de calcul avant de commander ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 2,
+          "justificatifs": "Lien vers la page tarifs de votre site, grille, brochure ou modèle de devis",
+          "preuve_attendue": true
+        },
+        {
+          "code": "5.4",
+          "libelle": "Vos devis et factures comportent-ils les mentions obligatoires ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 2,
+          "justificatifs": "Un devis et une facture, données du client masquées",
+          "preuve_attendue": true
+        },
+        {
+          "code": "5.5",
+          "libelle": "Le délai de livraison figure-t-il dans votre contrat ou vos CGV ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 1,
+          "justificatifs": "Extrait du contrat ou des CGV",
+          "preuve_attendue": true,
+          "complements": [
+            {
+              "key": "delais",
+              "label": "Votre délai habituel pour chaque spécialité",
+              "type": "par_specialite",
+              "si": "oui"
+            }
+          ]
+        },
+        {
+          "code": "5.6",
+          "libelle": "Comment une réservation est-elle confirmée ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 1,
+          "justificatifs": "Extrait du contrat ou des CGV",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "acompte",
+              "label": "Acompte",
+              "points": 1
+            },
+            {
+              "value": "integral",
+              "label": "Paiement intégral de la séance",
+              "points": 1
+            },
+            {
+              "value": "frais-seance",
+              "label": "Frais de séance réglés, produits commandés ensuite",
+              "points": 1
+            },
+            {
+              "value": "devis-signe",
+              "label": "Devis signé sans versement (entreprises)",
+              "points": 1
+            },
+            {
+              "value": "aucune",
+              "label": "Aucune formalité",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "5.7",
+          "libelle": "Avez-vous des conditions écrites d'annulation et de report ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Extrait du contrat ou des CGV",
+          "preuve_attendue": true
+        },
+        {
+          "code": "5.8",
+          "libelle": "Utilisez-vous un logiciel de gestion client (CRM, logiciel de studio) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 1,
+          "complements": [
+            {
+              "key": "outil",
+              "label": "Nom de l'outil (facultatif)",
+              "type": "text",
+              "si": "oui"
+            }
+          ]
+        },
+        {
+          "code": "5.9",
+          "libelle": "Comment préparez-vous vos clients avant la séance ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Document, ou description de votre démarche",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "document",
+              "label": "Document ou guide écrit",
+              "points": 2
+            },
+            {
+              "value": "appel",
+              "label": "Appel ou rendez-vous préalable systématique",
+              "points": 2
+            },
+            {
+              "value": "aucune",
+              "label": "Pas de préparation",
+              "points": 0
+            }
+          ],
+          "complements": [
+            {
+              "key": "commentaire",
+              "label": "Commentaire",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "code": "5.10",
+          "libelle": "Comment gérez-vous une réclamation ou une insatisfaction client ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Procédure, ou description",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "procedure",
+              "label": "Procédure écrite",
+              "points": 2
+            },
+            {
+              "value": "cas-par-cas",
+              "label": "Au cas par cas, avec appel systématique",
+              "points": 1
+            },
+            {
+              "value": "aucune",
+              "label": "Pas de démarche définie",
+              "points": 0
+            }
+          ],
+          "complements": [
+            {
+              "key": "commentaire",
+              "label": "Commentaire",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "code": "5.11",
+          "libelle": "Comment livrez-vous les images à vos clients ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Lien vers un exemple de galerie de livraison (facultatif)",
+          "options": [
+            {
+              "value": "galerie",
+              "label": "Galerie en ligne privée",
+              "points": 2
+            },
+            {
+              "value": "transfert",
+              "label": "Transfert sécurisé de fichiers",
+              "points": 2
+            },
+            {
+              "value": "produits",
+              "label": "Tirages, albums ou supports après visionnage",
+              "points": 2
+            },
+            {
+              "value": "autre",
+              "label": "Autre",
+              "points": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 6,
+      "titre": "Gestion financière",
+      "intro": "Votre comptabilité et vos moyens de paiement. Le chiffre d'affaires et la TVA ne rapportent aucun point.",
+      "questions": [
+        {
+          "code": "6.1",
+          "libelle": "Tenez-vous une comptabilité conforme à votre statut (livre des recettes pour les micro-entrepreneurs, comptabilité complète pour les sociétés) ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 3,
+          "justificatifs": "Attestation de l'expert-comptable, capture du logiciel ou attestation sur l'honneur",
+          "preuve_attendue": true
+        },
+        {
+          "code": "6.2",
+          "libelle": "Quels moyens de paiement proposez-vous ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 1,
+          "options": [
+            {
+              "value": "cb",
+              "label": "Carte bancaire",
+              "points": 1
+            },
+            {
+              "value": "virement",
+              "label": "Virement",
+              "points": 1
+            },
+            {
+              "value": "en-ligne",
+              "label": "Paiement en ligne",
+              "points": 1
+            },
+            {
+              "value": "cheque",
+              "label": "Chèque",
+              "points": 1
+            },
+            {
+              "value": "especes",
+              "label": "Espèces",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "6.3",
+          "libelle": "Quelle est votre tranche de chiffre d'affaires annuel ?",
+          "type": "choice",
+          "statut": "informatif",
+          "points_max": 0,
+          "facultatif": true,
+          "aide": "Utilisé uniquement pour des statistiques anonymes, jamais transmis à la commission.",
+          "options": [
+            {
+              "value": "lt20k",
+              "label": "Moins de 20 000 €",
+              "points": 0
+            },
+            {
+              "value": "20-40k",
+              "label": "20 000 à 40 000 €",
+              "points": 0
+            },
+            {
+              "value": "40-80k",
+              "label": "40 000 à 80 000 €",
+              "points": 0
+            },
+            {
+              "value": "80-150k",
+              "label": "80 000 à 150 000 €",
+              "points": 0
+            },
+            {
+              "value": "gt150k",
+              "label": "Plus de 150 000 €",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "6.4",
+          "libelle": "Êtes-vous assujetti à la TVA ?",
+          "type": "yes_no",
+          "statut": "informatif",
+          "points_max": 0,
+          "aide": "Répondez non si vous êtes en franchise en base de TVA."
+        },
+        {
+          "code": "6.5",
+          "libelle": "Appliquez-vous un taux de TVA réduit (5,5 % ou 10 %) sur certaines ventes, par exemple œuvres d'art ou cession de droits ?",
+          "type": "yes_no",
+          "statut": "informatif",
+          "points_max": 0,
+          "condition": {
+            "q": "6.4",
+            "op": "eq",
+            "value": "oui"
+          }
+        }
+      ]
+    },
+    {
+      "numero": 7,
+      "titre": "Matériel et sécurité des fichiers",
+      "intro": "Votre équipement et la protection des images de vos clients. Vos déclarations sont couvertes par l'attestation sur l'honneur et peuvent être contrôlées.",
+      "questions": [
+        {
+          "code": "7.1",
+          "libelle": "Listez votre matériel principal : boîtiers, objectifs, éclairage, avec l'année d'achat approximative",
+          "type": "materiel",
+          "statut": "valorise",
+          "points_max": 3,
+          "note_par_experts": true,
+          "aide": "La commission apprécie l'adéquation à vos spécialités et l'état du matériel. Les factures sont facultatives.",
+          "justificatifs": "La liste suffit"
+        },
+        {
+          "code": "7.2",
+          "libelle": "Quelle solution avez-vous en cas de panne de matériel pendant une séance ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 3,
+          "options": [
+            {
+              "value": "second-boitier",
+              "label": "Un second boîtier",
+              "points": 3
+            },
+            {
+              "value": "location",
+              "label": "Location ou prêt garanti",
+              "points": 2
+            },
+            {
+              "value": "aucune",
+              "label": "Aucune",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "7.3",
+          "libelle": "Comment sécurisez-vous les fichiers pendant la prise de vue ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 3,
+          "justificatifs": "Description (photo facultative)",
+          "options": [
+            {
+              "value": "double-carte",
+              "label": "Enregistrement simultané sur deux cartes",
+              "points": 3
+            },
+            {
+              "value": "transfert",
+              "label": "Transfert immédiat (ordinateur, partage)",
+              "points": 3
+            },
+            {
+              "value": "argentique",
+              "label": "Argentique",
+              "points": 3
+            },
+            {
+              "value": "aucune",
+              "label": "Aucune sécurisation particulière",
+              "points": 0,
+              "exclusive": true
+            }
+          ],
+          "complements": [
+            {
+              "key": "nb_boitiers",
+              "label": "Nombre de boîtiers",
+              "type": "number"
+            },
+            {
+              "key": "nb_double_slot",
+              "label": "Dont équipés d'un double emplacement de carte",
+              "type": "number"
+            },
+            {
+              "key": "description",
+              "label": "Description",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "code": "7.4",
+          "libelle": "Combien de copies de vos fichiers conservez-vous après la séance, et où ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 3,
+          "aide": "Deux copies : 2 points. Avec une copie hors site ou dans le cloud : 3 points.",
+          "justificatifs": "Description (photo facultative)",
+          "options": [
+            {
+              "value": "travail",
+              "label": "Copie de travail",
+              "points": 0
+            },
+            {
+              "value": "locale",
+              "label": "Seconde copie locale (disque, NAS)",
+              "points": 2
+            },
+            {
+              "value": "hors-site",
+              "label": "Copie hors site ou dans le cloud",
+              "points": 1
+            }
+          ],
+          "complements": [
+            {
+              "key": "description",
+              "label": "Description",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "code": "7.5",
+          "libelle": "Avez-vous prévu une solution en cas d'incident (perte de fichiers, empêchement le jour de la séance) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 1,
+          "complements": [
+            {
+              "key": "description",
+              "label": "Décrivez-la",
+              "type": "text",
+              "si": "oui"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 8,
+      "titre": "Droits, données et intelligence artificielle",
+      "intro": "Vos droits d'auteur, la protection des données de vos clients et votre usage de l'IA.",
+      "questions": [
+        {
+          "code": "8.1",
+          "libelle": "Vos contrats ou CGV précisent-ils les droits d'utilisation accordés au client sur les images (usages autorisés, supports, durée) ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 3,
+          "justificatifs": "Extrait du contrat ou des CGV",
+          "preuve_attendue": true
+        },
+        {
+          "code": "8.2",
+          "libelle": "Disposez-vous d'une politique de confidentialité conforme au RGPD ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 3,
+          "justificatifs": "Lien ou document",
+          "preuve_attendue": true
+        },
+        {
+          "code": "8.3",
+          "libelle": "Informez-vous vos clients de la durée de conservation de leurs fichiers ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Extrait du contrat, des CGV ou de la politique de confidentialité",
+          "preuve_attendue": true
+        },
+        {
+          "code": "8.4",
+          "libelle": "Recueillez-vous une autorisation écrite avant toute diffusion des images (portfolio, réseaux sociaux, publicité), signée par les titulaires de l'autorité parentale pour les mineurs ?",
+          "type": "yes_no",
+          "statut": "eliminatoire",
+          "points_max": 3,
+          "justificatifs": "Modèle d'autorisation ou clause du contrat",
+          "preuve_attendue": true
+        },
+        {
+          "code": "8.5",
+          "libelle": "Utilisez-vous des outils d'intelligence artificielle dans votre production ?",
+          "type": "multi_choice",
+          "statut": "informatif",
+          "points_max": 0,
+          "options": [
+            {
+              "value": "aucun",
+              "label": "Aucun",
+              "points": 0,
+              "exclusive": true
+            },
+            {
+              "value": "retouche",
+              "label": "Retouche assistée par IA (ex. Evoto, outils IA de Lightroom ou Photoshop)",
+              "points": 0
+            },
+            {
+              "value": "generation-elements",
+              "label": "Génération ou remplacement d'éléments (fond, décor)",
+              "points": 0
+            },
+            {
+              "value": "generation-images",
+              "label": "Images entièrement générées",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "8.6",
+          "libelle": "Informez-vous vos clients de cet usage de l'IA ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 3,
+          "justificatifs": "Mention dans le contrat, les CGV ou sur votre site",
+          "preuve_attendue": true,
+          "condition": {
+            "q": "8.5",
+            "op": "has_other_than",
+            "value": "aucun"
+          }
+        },
+        {
+          "code": "8.7",
+          "libelle": "Vérifiez-vous vous-même chaque image retouchée avec un outil d'IA avant de la livrer ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "condition": {
+            "q": "8.5",
+            "op": "has_other_than",
+            "value": "aucun"
+          }
+        }
+      ]
+    },
+    {
+      "numero": 9,
+      "titre": "Présence professionnelle et accueil",
+      "intro": "Votre visibilité et l'accueil de vos clients.",
+      "questions": [
+        {
+          "code": "9.1",
+          "libelle": "Présence en ligne : site et réseaux sociaux",
+          "type": "evaluation",
+          "source": "0.3",
+          "statut": "valorise",
+          "points_max": 5,
+          "note_par_experts": true,
+          "aide": "Aucune saisie : la commission apprécie les liens donnés dans « Vos coordonnées ». Site (3 points) : informations pratiques, mentions légales, tarifs ou modalités, cohérence avec votre travail. Réseaux sociaux (2 points) : régularité des publications, qualité et cohérence des images."
+        },
+        {
+          "code": "9.2",
+          "libelle": "Où recevez-vous vos clients ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Adresse et 2 à 3 photos du lieu",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "studio",
+              "label": "Studio ou bureau dédié",
+              "points": 2
+            },
+            {
+              "value": "domicile",
+              "label": "Espace aménagé à domicile",
+              "points": 1
+            },
+            {
+              "value": "itinerant",
+              "label": "Uniquement chez le client ou en extérieur",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "9.3",
+          "libelle": "Votre lieu d'accueil est-il accessible aux personnes à mobilité réduite ?",
+          "type": "choice",
+          "statut": "valorise",
+          "points_max": 3,
+          "aide": "Un lieu qui reçoit du public est soumis à des règles d'accessibilité (registre public d'accessibilité notamment).",
+          "justificatifs": "Photo(s) de l'accès",
+          "preuve_attendue": true,
+          "condition": {
+            "q": "9.2",
+            "op": "in",
+            "values": [
+              "studio",
+              "domicile"
+            ]
+          },
+          "options": [
+            {
+              "value": "entierement",
+              "label": "Entièrement accessible",
+              "points": 3
+            },
+            {
+              "value": "avec-aide",
+              "label": "Avec aide ou aménagement ponctuel",
+              "points": 2
+            },
+            {
+              "value": "non",
+              "label": "Non accessible",
+              "points": 0
+            }
+          ]
+        },
+        {
+          "code": "9.4",
+          "libelle": "Adaptez-vous votre accueil ou vos séances aux personnes en situation de handicap ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "complements": [
+            {
+              "key": "description",
+              "label": "Décrivez comment",
+              "type": "text",
+              "si": "oui"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 10,
+      "titre": "Engagement et transmission",
+      "intro": "Votre engagement dans la profession et au-delà.",
+      "questions": [
+        {
+          "code": "10.1",
+          "libelle": "Êtes-vous membre d'une organisation professionnelle de la photographie ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 3,
+          "justificatifs": "Attestation d'adhésion de l'année en cours",
+          "preuve_attendue": true,
+          "complements": [
+            {
+              "key": "organisation",
+              "label": "Laquelle ?",
+              "type": "text",
+              "si": "oui"
+            }
+          ]
+        },
+        {
+          "code": "10.2",
+          "libelle": "Transmettez-vous votre savoir-faire ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 5,
+          "justificatifs": "Attestation ou contrat de l'organisme, programme, affiche, convention de stage, lien",
+          "preuve_attendue": true,
+          "options": [
+            {
+              "value": "qualiopi",
+              "label": "Formateur pour un organisme certifié Qualiopi",
+              "points": 3
+            },
+            {
+              "value": "independant",
+              "label": "Formateur indépendant",
+              "points": 2
+            },
+            {
+              "value": "stagiaires",
+              "label": "Accueil de stagiaires ou d'alternants",
+              "points": 2
+            },
+            {
+              "value": "conferences",
+              "label": "Conférences ou interventions",
+              "points": 1
+            },
+            {
+              "value": "mentorat",
+              "label": "Mentorat",
+              "points": 1
+            },
+            {
+              "value": "publications",
+              "label": "Publications (livre, articles)",
+              "points": 1
+            },
+            {
+              "value": "aucun",
+              "label": "Non",
+              "points": 0,
+              "exclusive": true
+            }
+          ]
+        },
+        {
+          "code": "10.3",
+          "libelle": "Avez-vous un engagement solidaire (séances caritatives, dons, bénévolat) ?",
+          "type": "yes_no",
+          "statut": "valorise",
+          "points_max": 2,
+          "justificatifs": "Justificatif, lien ou description",
+          "preuve_attendue": true
+        },
+        {
+          "code": "10.4",
+          "libelle": "Quelles pratiques éco-responsables avez-vous mises en place ?",
+          "type": "multi_choice",
+          "statut": "valorise",
+          "points_max": 2,
+          "options": [
+            {
+              "value": "reconditionne",
+              "label": "Matériel reconditionné ou réparé",
+              "points": 1
+            },
+            {
+              "value": "impression",
+              "label": "Impression éco-labellisée ou locale",
+              "points": 1
+            },
+            {
+              "value": "dechets",
+              "label": "Réduction des emballages et déchets",
+              "points": 1
+            },
+            {
+              "value": "energie",
+              "label": "Sobriété énergétique du studio",
+              "points": 1
+            },
+            {
+              "value": "mobilite",
+              "label": "Mobilité douce",
+              "points": 1
+            },
+            {
+              "value": "autre",
+              "label": "Autre",
+              "points": 1
+            },
+            {
+              "value": "aucune",
+              "label": "Aucune pour l'instant",
+              "points": 0,
+              "exclusive": true
+            }
+          ],
+          "complements": [
+            {
+              "key": "commentaire",
+              "label": "Commentaire (facultatif)",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 11,
+      "titre": "Motivations et attestation",
+      "intro": "Dernière étape avant l'envoi.",
+      "questions": [
+        {
+          "code": "11.1",
+          "libelle": "Pourquoi souhaitez-vous rejoindre la Charte Qualité Photographe Professionnel de France ?",
+          "type": "text",
+          "statut": "informatif",
+          "points_max": 0,
+          "facultatif": true
+        }
+      ]
+    }
+  ],
+  "attestation": [
+    "J'atteste sur l'honneur l'exactitude et la sincérité des informations et des justificatifs fournis dans ce dossier.",
+    "Je suis informé(e) qu'une fausse déclaration entraîne le rejet du dossier ou le retrait immédiat de la Charte, et que l'établissement d'une attestation faisant état de faits matériellement inexacts est puni d'un an d'emprisonnement et de 15 000 € d'amende (article 441-7 du Code pénal).",
+    "J'accepte que des contrôles soient réalisés pendant toute la durée de validité de la Charte, et que les originaux des justificatifs me soient demandés.",
+    "Je m'engage à signaler dans un délai de 30 jours tout changement affectant une condition obligatoire (fin d'assurance, radiation, cessation d'activité)."
+  ]
+}

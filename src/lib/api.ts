@@ -1,0 +1,169 @@
+// Accès aux données. Deux implémentations derrière la même interface :
+//  - Supabase (production)
+//  - Démo (aucun serveur, données d'exemple gardées dans le navigateur)
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { Piece, Reponse, Reponses } from './types';
+import { exempleReponses } from '../data/demo';
+
+export type Role = 'candidat' | 'expert' | 'gestionnaire' | 'admin';
+export type StatutDossier =
+  | 'brouillon' | 'envoye' | 'complements' | 'attente_commission' | 'evaluation'
+  | 'deliberation' | 'accorde' | 'refuse' | 'suspendu' | 'retire';
+
+export interface Utilisateur { id: string; email: string; prenom?: string | null; nom?: string | null; role: Role }
+
+export interface Dossier {
+  id: string;
+  numero: string;
+  statut: StatutDossier;
+  questions_rouvertes: string[];
+  message_complements?: string | null;
+  envoye_le?: string | null;
+  valide_jusqu_au?: string | null;
+}
+
+export interface Api {
+  demo: boolean;
+  utilisateur(): Promise<Utilisateur | null>;
+  envoyerLien(email: string): Promise<void>;
+  deconnexion(): Promise<void>;
+  monDossier(): Promise<Dossier | null>;
+  reponses(dossierId: string): Promise<Reponses>;
+  enregistrer(dossierId: string, code: string, r: Reponse): Promise<void>;
+  pieces(dossierId: string): Promise<Piece[]>;
+  deposer(dossierId: string, code: string, fichier: File): Promise<Piece>;
+  supprimerPiece(piece: Piece): Promise<void>;
+  envoyerDossier(dossierId: string, score: number): Promise<void>;
+  /** Démo seulement : changer d'espace pour visiter */
+  changerRole?(role: Role): void;
+}
+
+// ---------------------------------------------------------------------
+// Supabase
+// ---------------------------------------------------------------------
+function apiSupabase(sb: SupabaseClient): Api {
+  return {
+    demo: false,
+    async utilisateur() {
+      const { data } = await sb.auth.getUser();
+      if (!data.user) return null;
+      const { data: p } = await sb.from('profiles').select('id,email,prenom,nom,role').eq('id', data.user.id).single();
+      return p as Utilisateur;
+    },
+    async envoyerLien(email) {
+      const { error } = await sb.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/candidat` },
+      });
+      if (error) throw new Error("Aucun dossier n'est associé à cette adresse. Utilisez l'email saisi lors du paiement.");
+    },
+    async deconnexion() { await sb.auth.signOut(); },
+    async monDossier() {
+      const { data } = await sb.from('dossiers')
+        .select('id,numero,statut,questions_rouvertes,message_complements,envoye_le,valide_jusqu_au')
+        .order('created_at', { ascending: false }).limit(1).maybeSingle();
+      return data as Dossier | null;
+    },
+    async reponses(dossierId) {
+      const { data } = await sb.from('reponses').select('question_code,valeur,complements,justification').eq('dossier_id', dossierId);
+      const out: Reponses = {};
+      for (const r of data ?? []) out[r.question_code] = { valeur: r.valeur, complements: r.complements, justification: r.justification };
+      return out;
+    },
+    async enregistrer(dossierId, code, r) {
+      const { error } = await sb.from('reponses').upsert({
+        dossier_id: dossierId, question_code: code, valeur: r.valeur,
+        complements: r.complements ?? {}, justification: r.justification ?? null, updated_at: new Date().toISOString(),
+      });
+      if (error) throw new Error("L'enregistrement a échoué. Vérifiez votre connexion, votre saisie est conservée sur cette page.");
+    },
+    async pieces(dossierId) {
+      const { data } = await sb.from('pieces').select('id,question_code,nom_fichier,taille,storage_path').eq('dossier_id', dossierId);
+      return (data ?? []) as Piece[];
+    },
+    async deposer(dossierId, code, fichier) {
+      const propre = fichier.name.normalize('NFD').replace(/[^\w.-]+/g, '_');
+      const chemin = `${dossierId}/${code}/${crypto.randomUUID()}-${propre}`;
+      const up = await sb.storage.from('pieces').upload(chemin, fichier, { contentType: fichier.type });
+      if (up.error) throw new Error('Fichier refusé. Formats acceptés : PDF, JPG, PNG, 10 Mo maximum.');
+      const { data, error } = await sb.from('pieces').insert({
+        dossier_id: dossierId, question_code: code, storage_path: chemin,
+        nom_fichier: fichier.name, taille: fichier.size, mime: fichier.type,
+      }).select('id,question_code,nom_fichier,taille,storage_path').single();
+      if (error) throw new Error(error.message);
+      return data as Piece;
+    },
+    async supprimerPiece(p) {
+      if (p.storage_path) await sb.storage.from('pieces').remove([p.storage_path]);
+      await sb.from('pieces').delete().eq('id', p.id);
+    },
+    async envoyerDossier(dossierId, score) {
+      const { error } = await sb.rpc('envoyer_dossier', { d: dossierId, score });
+      if (error) throw new Error(error.message);
+    },
+  };
+}
+
+// ---------------------------------------------------------------------
+// Démo : stockage dans le navigateur, avec repli en mémoire
+// ---------------------------------------------------------------------
+const memoire: Record<string, string> = {};
+const lire = <T,>(cle: string, defaut: T): T => {
+  try {
+    const v = localStorage.getItem(cle) ?? memoire[cle];
+    return (v ? (JSON.parse(v) as T | null) : null) ?? defaut;
+  } catch { return (memoire[cle] ? (JSON.parse(memoire[cle]) as T | null) : null) ?? defaut; }
+};
+const ecrire = (cle: string, v: unknown) => {
+  const s = JSON.stringify(v);
+  memoire[cle] = s;
+  try { localStorage.setItem(cle, s); } catch { /* stockage indisponible : mémoire seule */ }
+};
+
+function apiDemo(): Api {
+  const K = 'ppf-demo-v1';
+  type Etat = { connecte: boolean; role: Role; dossier: Dossier; reponses: Reponses; pieces: Piece[] };
+  const initial: Etat = {
+    connecte: false,
+    role: 'candidat',
+    dossier: { id: 'demo', numero: 'PPF-2026-0042', statut: 'brouillon', questions_rouvertes: [] },
+    reponses: exempleReponses,
+    pieces: [
+      { id: 'p1', question_code: '1.3', nom_fichier: 'Extrait-RNE-septembre-2026.pdf', taille: 184_220 },
+      { id: 'p2', question_code: '1.5', nom_fichier: 'Attestation-RC-Pro-2026.pdf', taille: 96_410 },
+    ],
+  };
+  const etat = (): Etat => lire(K, initial);
+  const maj = (f: (e: Etat) => void) => { const e = etat(); f(e); ecrire(K, e); };
+  return {
+    demo: true,
+    async utilisateur() {
+      const e = etat();
+      if (!e.connecte) return null;
+      const noms: Record<Role, [string, string]> = { candidat: ['Camille', 'Exemple'], expert: ['Hélène', 'Exemple'], admin: ['Administratrice', ''], gestionnaire: ['Gestionnaire', ''] };
+      return { id: 'demo', email: 'exemple@studio-photo.fr', prenom: noms[e.role][0], nom: noms[e.role][1], role: e.role };
+    },
+    async envoyerLien() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); },
+    async deconnexion() { maj((e) => { e.connecte = false; }); },
+    async monDossier() { return etat().dossier; },
+    async reponses() { return etat().reponses; },
+    async enregistrer(_d, code, r) { maj((e) => { e.reponses[code] = r; }); },
+    async pieces() { return etat().pieces; },
+    async deposer(_d, code, f) {
+      const p: Piece = { id: Math.random().toString(36).slice(2), question_code: code, nom_fichier: f.name, taille: f.size };
+      maj((e) => { e.pieces.push(p); });
+      return p;
+    },
+    async supprimerPiece(p) { maj((e) => { e.pieces = e.pieces.filter((x) => x.id !== p.id); }); },
+    async envoyerDossier() { maj((e) => { e.dossier.statut = 'envoye'; e.dossier.envoye_le = new Date().toISOString(); }); },
+    changerRole(role) { maj((e) => { e.connecte = true; e.role = role; }); },
+  };
+}
+
+export function reinitialiserDemo() { ecrire('ppf-demo-v1', null); try { localStorage.removeItem('ppf-demo-v1'); } catch { /* */ } }
+
+const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const cle = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+export const estDemo = import.meta.env.VITE_DEMO === '1' || !url || !cle;
+export const api: Api = estDemo ? apiDemo() : apiSupabase(createClient(url!, cle!));
+export const lienPaiement = (import.meta.env.VITE_STRIPE_PAYMENT_LINK as string | undefined) ?? '';
