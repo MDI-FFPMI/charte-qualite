@@ -27,6 +27,8 @@ export interface Api {
   utilisateur(): Promise<Utilisateur | null>;
   envoyerLien(email: string): Promise<void>;
   deconnexion(): Promise<void>;
+  /** Prévient l'application quand la connexion change (retour par le lien email, déconnexion) */
+  surChangement(cb: () => void): () => void;
   monDossier(): Promise<Dossier | null>;
   reponses(dossierId: string): Promise<Reponses>;
   enregistrer(dossierId: string, code: string, r: Reponse): Promise<void>;
@@ -53,11 +55,22 @@ function apiSupabase(sb: SupabaseClient): Api {
     async envoyerLien(email) {
       const { error } = await sb.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
-        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/candidat` },
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/connexion` },
       });
-      if (error) throw new Error("Aucun dossier n'est associé à cette adresse. Utilisez l'email saisi lors du paiement.");
+      if (error) {
+        const m = error.message.toLowerCase();
+        if (m.includes('signup') || m.includes('not found') || m.includes('not allowed'))
+          throw new Error("Aucun compte n'est associé à cette adresse. Utilisez l'email saisi lors du paiement.");
+        if (m.includes('rate limit') || error.status === 429)
+          throw new Error("Trop de demandes de lien en peu de temps. Patientez quelques minutes avant de réessayer.");
+        throw new Error(`La demande de lien a échoué : ${error.message}`);
+      }
     },
     async deconnexion() { await sb.auth.signOut(); },
+    surChangement(cb) {
+      const { data } = sb.auth.onAuthStateChange(() => { setTimeout(cb, 0); });
+      return () => data.subscription.unsubscribe();
+    },
     async monDossier() {
       const { data } = await sb.from('dossiers')
         .select('id,numero,statut,questions_rouvertes,message_complements,envoye_le,valide_jusqu_au')
@@ -145,6 +158,7 @@ function apiDemo(): Api {
     },
     async envoyerLien() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); },
     async deconnexion() { maj((e) => { e.connecte = false; }); },
+    surChangement() { return () => {}; },
     async monDossier() { return etat().dossier; },
     async reponses() { return etat().reponses; },
     async enregistrer(_d, code, r) { maj((e) => { e.reponses[code] = r; }); },

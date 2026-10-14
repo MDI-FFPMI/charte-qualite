@@ -1,0 +1,23 @@
+<!-- Supabase > Authentication > Emails > Templates > "Magic link"
+     Objet : Votre lien de connexion - Charte Qualité Photographe Professionnel de France -->
+<div style="background:#f4f5f9;padding:32px 16px;font-family:Montserrat,Arial,Helvetica,sans-serif;color:#1b2140;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #dde1ea;">
+    <div style="padding:24px 32px;border-bottom:3px solid #29336e;">
+      <img src="https://charte-qualite.vercel.app/logo-ppf.png" alt="Photographe Professionnel de France - FFPMI" width="200" style="display:block;width:200px;height:auto;">
+    </div>
+    <div style="padding:32px;">
+      <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;color:#29336e;">Votre lien de connexion</h1>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Bonjour,</p>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.6;">Cliquez sur le bouton ci-dessous pour accéder à votre dossier Charte Qualité. Ce lien est personnel et valable une heure.</p>
+      <p style="margin:0 0 24px;">
+        <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#29336e;color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px;padding:14px 24px;border-radius:8px;">Accéder à mon dossier</a>
+      </p>
+      <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#5d6878;">Vous n'avez pas demandé ce lien ? Ignorez simplement cet email, aucune action n'est nécessaire.</p>
+    </div>
+    <div style="padding:20px 32px;background:#f4f5f9;font-size:12px;line-height:1.6;color:#5d6878;">
+      Charte Qualité Photographe Professionnel de France<br>
+      FFPMI - Fédération Française de la Photographie et des Métiers de l'Image<br>
+      Gestion : MDI - Métiers de l'Image · charte-qualite@ffpmi.eu
+    </div>
+  </div>
+</div>

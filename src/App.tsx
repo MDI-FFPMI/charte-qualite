@@ -28,7 +28,10 @@ export default function App() {
     setUtilisateur(await api.utilisateur());
     setCharge(true);
   }, []);
-  useEffect(() => { void rafraichir(); }, [rafraichir]);
+  useEffect(() => {
+    void rafraichir();
+    return api.surChangement(() => { void rafraichir(); });
+  }, [rafraichir]);
 
   const Routeur = estDemo ? MemoryRouter : BrowserRouter;
   return (
