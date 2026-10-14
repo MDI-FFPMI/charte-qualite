@@ -13,6 +13,7 @@ const libelleStatut: Record<Dossier['statut'], string> = {
   brouillon: 'En cours de saisie',
   envoye: 'Envoyé, en cours de vérification',
   complements: 'Compléments demandés',
+  verification: 'Recevable, vérification par les experts',
   attente_commission: 'Recevable, en attente de commission',
   evaluation: 'En évaluation par la commission',
   deliberation: 'En délibération',
@@ -119,7 +120,7 @@ function TableauDeBord({ e }: { e: Etat }) {
 
       {d.statut === 'complements' && (
         <div className="message att">
-          <strong>La commission vous demande des compléments.</strong> {d.message_complements}
+          <strong>Des compléments vous sont demandés.</strong> {d.message_complements}
           {' '}Seules les questions concernées sont rouvertes : {d.questions_rouvertes.join(', ')}.
         </div>
       )}

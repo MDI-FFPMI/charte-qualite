@@ -1,163 +1,217 @@
-// Espace expert. Version actuelle : branchée sur les données d'exemple.
-// Prochaine étape : lecture des dossiers de la session (RLS expert_voit_dossier),
-// écriture dans notes_portfolio et avis_justificatifs.
-import { useMemo, useState } from 'react';
+// Espace expert : vérification approfondie des justificatifs des dossiers attribués,
+// et aperçu de la notation en commission.
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import EnTete from '../../components/EnTete';
+import VueDossier, { BadgeAvis, ChoixAvis, libSpe, questionsAVerifier } from '../../components/VueDossier';
+import { equipe, type AvisGlobal, type DossierLigne, type Fiche, type Verif } from '../../lib/equipe';
 import { estDemo } from '../../lib/api';
-import refJson from '../../data/referentiel-v3.json';
-import { dossiersDemo, expertsDemo } from '../../data/demo';
-import { composer } from '../../lib/composition';
-import type { Referentiel } from '../../lib/types';
+import { useSession } from '../../App';
+import CommissionApercu from './CommissionApercu';
 
-const ref = refJson as Referentiel;
-const libSpe = (c: string) => ref.specialites.find((s) => s.value === c)?.label ?? c;
-const CRITERES = [
-  ['technique', 'Technique (netteté, exposition, maîtrise du matériel)'],
-  ['lumiere', 'Lumière'],
-  ['composition', 'Composition et cadrage'],
-  ['post', 'Post-traitement'],
-  ['constance', "Constance d'une galerie à l'autre"],
-] as const;
-const MOI = 'e1';
+const dateFr = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString('fr-FR') : '-');
 
-type Notes = Record<string, Record<string, number>>;
-type Avis = Record<string, Record<string, 'conforme' | 'non_conforme' | 'a_completer'>>;
+function MesVerifications() {
+  const nav = useNavigate();
+  const [liste, setListe] = useState<(DossierLigne & { moi: Verif })[] | null>(null);
+  const [erreur, setErreur] = useState('');
+  const [onglet, setOnglet] = useState<'verif' | 'commission'>('verif');
+  useEffect(() => { equipe.mesVerifications().then(setListe).catch((e) => setErreur((e as Error).message)); }, []);
 
-export default function EspaceExpert() {
-  const dossiers = dossiersDemo.filter((d) => d.statut === 'attente_commission');
-  const proposition = useMemo(() => composer(dossiers, expertsDemo, 6, new Date('2026-10-14'), libSpe), [dossiers]);
-  const mesRapports = proposition.affectations.filter((a) => a.rapporteurs.includes(MOI)).map((a) => a.dossierId);
-  const [actif, setActif] = useState(mesRapports[0] ?? dossiers[0].id);
-  const [notes, setNotes] = useState<Notes>({});
-  const [avis, setAvis] = useState<Avis>({});
-  const dossier = dossiers.find((d) => d.id === actif)!;
-  const n = notes[actif] ?? {};
-  const totalPortfolio = CRITERES.reduce((s, [k]) => s + (n[k] ?? 0), 0);
-  const noteComplete = CRITERES.every(([k]) => n[k] !== undefined);
-  const justificatifs = ref.rubriques.flatMap((r) => r.questions).filter((q) => q.preuve_attendue).slice(0, 8);
-  const rapporteur = mesRapports.includes(actif);
-  const fait = (id: string) => CRITERES.every(([k]) => notes[id]?.[k] !== undefined);
+  const aFaire = (liste ?? []).filter((d) => d.moi.statut === 'en_cours');
+  const faites = (liste ?? []).filter((d) => d.moi.statut === 'termine');
+  const Tableau = ({ l }: { l: typeof aFaire }) => (
+    <div className="tableau-wrap">
+      <table className="tableau">
+        <thead><tr><th>Dossier</th><th>Candidat</th><th>Spécialités</th><th>Attribué le</th><th></th></tr></thead>
+        <tbody>
+          {l.map((d) => (
+            <tr key={d.id} className="ligne-cliquable" onClick={() => nav(`/expert/dossier/${d.id}`)}>
+              <td className="num"><Link to={`/expert/dossier/${d.id}`} onClick={(e) => e.stopPropagation()}>{d.numero}</Link></td>
+              <td>{d.candidat || '-'}<br /><span className="petit discret">{d.ville}</span></td>
+              <td>{d.principale ? <><span className="puce-spe ref">{libSpe(d.principale)}</span>{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</td>
+              <td className="num">{dateFr(d.moi.attribue_le)}</td>
+              <td>{d.moi.statut === 'termine' ? <span className="badge ok">Rendu le {dateFr(d.moi.termine_le)}</span> : <span className="badge att">À vérifier</span>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
-    <>
-      <EnTete espace="expert" liens={[{ to: '/expert', label: 'Commission du 8 décembre 2026', end: true }]} />
-      <main className="gouttiere">
-        <div className="conteneur pile" style={{ gap: '1.5rem' }}>
-          {!estDemo && (
-            <div className="message att" style={{ marginBottom: '1.25rem' }}>
-              Version de travail : cet espace affiche des données d'exemple et n'est pas encore relié à la base. Les dossiers réels apparaîtront ici à la prochaine étape.
-            </div>
-          )}
-          <div className="ligne" style={{ justifyContent: 'space-between' }}>
-            <div className="pile" style={{ gap: '.3rem' }}>
-              <h1 className="equerre">Commission du 8 décembre 2026</h1>
-              <p className="discret">Évaluation à rendre avant le 1er décembre · {dossiers.length} dossiers · vous êtes rapporteur de {mesRapports.length}</p>
-            </div>
-            <span className="badge att">{dossiers.filter((d) => fait(d.id)).length} / {dossiers.length} portfolios notés</span>
+    <div className="pile" style={{ gap: '1.5rem' }}>
+      <div className="onglets" role="tablist">
+        <button role="tab" aria-selected={onglet === 'verif'} onClick={() => setOnglet('verif')}>Mes vérifications{aFaire.length ? ` (${aFaire.length})` : ''}</button>
+        <button role="tab" aria-selected={onglet === 'commission'} onClick={() => setOnglet('commission')}>Commission</button>
+      </div>
+      {onglet === 'commission' ? <CommissionApercu /> : (
+        <>
+          <div className="pile" style={{ gap: '.4rem' }}>
+            <h1 className="equerre">Mes vérifications</h1>
+            <p className="discret" style={{ maxWidth: '70ch' }}>
+              Chaque dossier recevable est confié à deux experts. L'équipe FFPMI a déjà contrôlé que les pièces sont présentes et lisibles.
+              Vous vérifiez le fond : les documents prouvent-ils vraiment ce que le candidat déclare ? Votre avis n'est pas visible par l'autre vérificateur.
+            </p>
           </div>
-
-          <div className="candidat-grille">
-            <nav className="sommaire" aria-label="Dossiers de la session">
-              {dossiers.map((d) => (
-                <a key={d.id} href={`#${d.id}`} aria-current={d.id === actif ? 'page' : undefined}
-                  onClick={(e) => { e.preventDefault(); setActif(d.id); }}>
-                  <span className={`pastille ${fait(d.id) ? 'faite' : ''}`} aria-hidden="true">{fait(d.id) ? '✓' : ''}</span>
-                  <span>{d.numero}<br /><span className="petit discret">{libSpe(d.principale)}</span></span>
-                  {mesRapports.includes(d.id) ? <span className="badge pts">Rapporteur</span> : <span />}
-                </a>
-              ))}
-            </nav>
-
-            <div className="pile" style={{ gap: '1.25rem', minWidth: 0 }}>
-              <div className="carte pile">
-                <div className="ligne" style={{ justifyContent: 'space-between' }}>
-                  <h2>{dossier.numero}</h2>
-                  {rapporteur && <span className="badge pts">Vous êtes rapporteur</span>}
-                </div>
-                <p className="discret">
-                  Spécialité principale : <strong>{libSpe(dossier.principale)}</strong>
-                  {dossier.autres.length > 0 && <> · Autres : {dossier.autres.map(libSpe).join(', ')}</>}
-                </p>
-                <div className="message att petit">
-                  Avant d'ouvrir les pièces, confirmez n'avoir aucun lien avec ce candidat (associé, salarié, famille, client).
-                  En cas de conflit, le dossier est retiré de votre liste.
-                </div>
-              </div>
-
-              <div className="carte pile">
-                <h2 style={{ fontSize: '1.05rem' }}>Galeries (question 4.1)</h2>
-                <div className="pile" style={{ gap: '.4rem' }}>
-                  {[1, 2, 3].map((i) => <span key={i} className="fichier"><span>Galerie {i} · lien du candidat, ouvert dans un nouvel onglet</span><span className="discret petit">exemple</span></span>)}
-                </div>
-                <h3 style={{ marginTop: '.5rem' }}>Note du portfolio</h3>
-                {CRITERES.map(([k, l]) => (
-                  <div className="critere" key={k}>
-                    <span>{l}</span>
-                    <div className="notes" role="radiogroup" aria-label={l}>
-                      {[0, 1, 2, 3, 4].map((v) => (
-                        <button key={v} aria-pressed={n[k] === v} className="num"
-                          onClick={() => setNotes((p) => ({ ...p, [actif]: { ...(p[actif] ?? {}), [k]: v } }))}>{v}</button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <div className="ligne" style={{ justifyContent: 'space-between' }}>
-                  <span className="discret">Les autres experts ne voient pas votre note.</span>
-                  <strong className="num">{noteComplete ? `${totalPortfolio} / 20` : `${totalPortfolio} / 20 (incomplet)`}</strong>
-                </div>
-              </div>
-
-              <div className="carte pile">
-                <h2 style={{ fontSize: '1.05rem' }}>Présence en ligne (question 9.1)</h2>
-                <div className="pile" style={{ gap: '.4rem' }}>
-                  <span className="fichier"><span>Site internet · lien du candidat</span><span className="discret petit">exemple</span></span>
-                  <span className="fichier"><span>Instagram · lien du candidat</span><span className="discret petit">exemple</span></span>
-                </div>
-                {([['site', 'Site : informations pratiques, mentions légales, cohérence avec le travail', 3], ['reseaux', 'Réseaux sociaux : régularité, qualité et cohérence des publications', 2]] as const).map(([k, l, max]) => (
-                  <div className="critere" key={k}>
-                    <span>{l}</span>
-                    <div className="notes" role="radiogroup" aria-label={l}>
-                      {Array.from({ length: max + 1 }, (_, v) => (
-                        <button key={v} aria-pressed={n[k] === v} className="num"
-                          onClick={() => setNotes((p) => ({ ...p, [actif]: { ...(p[actif] ?? {}), [k]: v } }))}>{v}</button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {rapporteur ? (
-                <div className="carte pile">
-                  <h2 style={{ fontSize: '1.05rem' }}>Vérification des justificatifs</h2>
-                  <p className="discret petit">Un justificatif jugé non conforme retire les points de la question. Extrait des questions concernées.</p>
-                  <div className="tableau-wrap">
-                    <table className="tableau">
-                      <thead><tr><th>Question</th><th>Pièce</th><th>Avis</th></tr></thead>
-                      <tbody>
-                        {justificatifs.map((q) => (
-                          <tr key={q.code}>
-                            <td><span className="num discret">{q.code}</span> {q.libelle}</td>
-                            <td className="discret petit">{q.justificatifs}</td>
-                            <td>
-                              <select className="saisie" aria-label={`Avis sur ${q.code}`} value={avis[actif]?.[q.code] ?? ''}
-                                onChange={(e) => setAvis((p) => ({ ...p, [actif]: { ...(p[actif] ?? {}), [q.code]: e.target.value as 'conforme' } }))}>
-                                <option value="">À vérifier</option>
-                                <option value="conforme">Conforme</option>
-                                <option value="non_conforme">Non conforme</option>
-                                <option value="a_completer">À compléter</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ) : (
-                <div className="encart discret">Les justificatifs de ce dossier sont vérifiés par ses deux rapporteurs. Vous notez uniquement le portfolio.</div>
+          {erreur && <div className="message erreur">{erreur}</div>}
+          {!liste ? <p className="discret">Chargement…</p> : (
+            <>
+              <section className="pile">
+                <h2 style={{ fontSize: '1.1rem' }}>À vérifier</h2>
+                {aFaire.length ? <Tableau l={aFaire} /> : <p className="encart discret">Aucun dossier à vérifier pour le moment. Vous serez prévenu dès qu'un dossier vous est attribué.</p>}
+              </section>
+              {faites.length > 0 && (
+                <section className="pile">
+                  <h2 style={{ fontSize: '1.1rem' }}>Vérifications rendues</h2>
+                  <Tableau l={faites} />
+                </section>
               )}
-            </div>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function FicheExpert() {
+  const { id = '' } = useParams();
+  const nav = useNavigate();
+  const { utilisateur } = useSession();
+  const [f, setF] = useState<Fiche | null>(null);
+  const [erreur, setErreur] = useState('');
+  const [avisGlobal, setAvisGlobal] = useState<AvisGlobal | ''>('');
+  const [commentaire, setCommentaire] = useState('');
+  const [conflit, setConflit] = useState(false);
+  const [motif, setMotif] = useState('');
+  const [occupe, setOccupe] = useState(false);
+  const [vue, setVue] = useState<'justificatifs' | 'tout'>('justificatifs');
+
+  const charger = useCallback(async () => {
+    try { setF(await equipe.fiche(id)); } catch (e) { setErreur((e as Error).message); }
+  }, [id]);
+  useEffect(() => { void charger(); }, [charger]);
+
+  const aVerif = useMemo(() => (f ? questionsAVerifier(f.reponses, f.pieces) : []), [f]);
+  if (erreur) return <div className="message erreur">Ce dossier n'est pas accessible. {erreur}</div>;
+  if (!f) return <p className="discret">Chargement du dossier…</p>;
+
+  const monId = estDemo ? 'e1' : utilisateur?.id ?? '';
+  const moi = f.dossier.verificateurs.find((v) => v.expert_id === monId);
+  const mesAvis = f.n2[monId] ?? {};
+  const ouvert = moi?.statut === 'en_cours';
+  const restants = aVerif.filter((q) => !mesAvis[q.code]);
+  const d = f.dossier;
+
+  const terminer = async () => {
+    if (!avisGlobal) return;
+    setOccupe(true);
+    try { await equipe.terminer(d.id, avisGlobal, commentaire.trim()); await charger(); }
+    catch (e) { setErreur((e as Error).message); }
+    setOccupe(false);
+  };
+  const declarerConflit = async () => {
+    setOccupe(true);
+    try { await equipe.conflit(d.id, motif.trim()); nav('/expert'); }
+    catch (e) { setErreur((e as Error).message); setOccupe(false); }
+  };
+
+  return (
+    <div className="pile" style={{ gap: '1.5rem' }}>
+      <Link to="/expert" className="retour">← Mes vérifications</Link>
+      <div className="carte pile">
+        <div className="ligne" style={{ justifyContent: 'space-between' }}>
+          <h1 className="equerre" style={{ fontSize: '1.5rem' }}>{d.numero}</h1>
+          {ouvert ? <span className="badge att">À vérifier</span> : <span className="badge ok">Vérification rendue</span>}
+        </div>
+        <div className="champs-lecture">
+          <span><span className="discret petit">Candidat</span><br /><strong>{d.candidat || '-'}</strong>{d.ville && <><br /><span className="petit">{d.ville}</span></>}</span>
+          <span><span className="discret petit">Spécialités</span><br />{d.principale ? <><span className="puce-spe ref">{libSpe(d.principale)}</span>{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</span>
+          <span><span className="discret petit">Envoyé le</span><br /><span className="num">{dateFr(d.envoye_le)}</span></span>
+        </div>
+        {ouvert && (
+          <div className="message att petit pile" style={{ gap: '.5rem' }}>
+            <span>Avant de commencer, vérifiez que vous n'avez aucun lien avec ce candidat : associé, salarié, famille, client, concurrent direct. En cas de doute, déclarez-le.</span>
+            {!conflit ? (
+              <button className="bouton secondaire petit-btn" style={{ alignSelf: 'flex-start' }} onClick={() => setConflit(true)}>Je déclare un lien avec ce candidat</button>
+            ) : (
+              <div className="pile" style={{ gap: '.4rem' }}>
+                <input className="saisie" placeholder="Nature du lien (visible par l'équipe uniquement)" value={motif} onChange={(e) => setMotif(e.target.value)} />
+                <div className="ligne">
+                  <button className="bouton principal petit-btn" disabled={!motif.trim() || occupe} onClick={declarerConflit}>Confirmer : le dossier sera retiré de ma liste</button>
+                  <button className="bouton secondaire petit-btn" onClick={() => setConflit(false)}>Annuler</button>
+                </div>
+              </div>
+            )}
           </div>
+        )}
+      </div>
+
+      <div className="ligne" style={{ justifyContent: 'space-between' }}>
+        <h2 className="equerre" style={{ fontSize: '1.2rem' }}>Le dossier</h2>
+        <div className="onglets" role="tablist" style={{ marginBottom: 0, borderBottom: 0 }}>
+          <button role="tab" aria-selected={vue === 'justificatifs'} onClick={() => setVue('justificatifs')}>Justificatifs ({aVerif.length})</button>
+          <button role="tab" aria-selected={vue === 'tout'} onClick={() => setVue('tout')}>Toutes les réponses</button>
+        </div>
+      </div>
+      <VueDossier reponses={f.reponses} pieces={f.pieces} seulementJustificatifs={vue === 'justificatifs'}
+        panneau={(q) => (
+          <>
+            <div className="pile" style={{ gap: '.3rem' }}>
+              <span className="petit discret" style={{ fontWeight: 600 }}>Contrôle FFPMI</span>
+              <BadgeAvis a={f.n1[q.code]} />
+            </div>
+            <div className="pile" style={{ gap: '.3rem' }}>
+              <span className="petit discret" style={{ fontWeight: 600 }}>Votre avis</span>
+              <ChoixAvis key={`${q.code}-${mesAvis[q.code]?.avis ?? ''}`} valeur={mesAvis[q.code]} verrouille={!ouvert}
+                onChange={async (a, c) => { await equipe.donnerAvis(d.id, q.code, a, c); await charger(); }} />
+            </div>
+          </>
+        )} />
+
+      <div className="carte pile bloc-etape">
+        <h2 style={{ fontSize: '1.1rem' }}>Votre conclusion</h2>
+        {ouvert ? (
+          <>
+            <p className="petit"><strong className="num">{aVerif.length - restants.length} / {aVerif.length}</strong> justificatifs vérifiés.
+              {restants.length > 0 && <span className="discret"> Reste : {restants.map((q) => q.code).join(', ')}</span>}</p>
+            <div className="ligne" role="radiogroup" aria-label="Avis global">
+              {([['favorable', 'Favorable', 'ok'], ['reserve', 'Avec réserves', 'att'], ['defavorable', 'Défavorable', 'ko']] as const).map(([k, l, c]) => (
+                <button key={k} type="button" className={`avis-btn ${c}`} aria-pressed={avisGlobal === k} onClick={() => setAvisGlobal(k)}>{l}</button>
+              ))}
+            </div>
+            <label className="champ">
+              Commentaire pour l'équipe et la commission
+              <textarea rows={4} value={commentaire} onChange={(e) => setCommentaire(e.target.value)}
+                placeholder="Points forts, réserves, éléments à demander au candidat" />
+            </label>
+            <div className="ligne">
+              <button className="bouton principal" disabled={!avisGlobal || restants.length > 0 || occupe} onClick={terminer}>Rendre ma vérification</button>
+              {restants.length > 0 && <span className="petit discret">Donnez un avis sur chaque justificatif pour rendre votre vérification.</span>}
+            </div>
+          </>
+        ) : moi ? (
+          <p>
+            Rendue le {dateFr(moi.termine_le)} · avis <strong>{moi.avis_global === 'favorable' ? 'favorable' : moi.avis_global === 'defavorable' ? 'défavorable' : 'avec réserves'}</strong>
+            {moi.commentaire && <><br /><span className="petit" style={{ whiteSpace: 'pre-wrap' }}>{moi.commentaire}</span></>}
+          </p>
+        ) : <p className="discret">Vous n'êtes pas vérificateur de ce dossier.</p>}
+      </div>
+    </div>
+  );
+}
+
+export default function EspaceExpert() {
+  return (
+    <>
+      <EnTete espace="expert" liens={[{ to: '/expert', label: 'Mes vérifications', end: true }]} />
+      <main className="gouttiere">
+        <div className="conteneur">
+          <Routes>
+            <Route index element={<MesVerifications />} />
+            <Route path="dossier/:id" element={<FicheExpert />} />
+          </Routes>
         </div>
       </main>
     </>

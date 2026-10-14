@@ -109,3 +109,40 @@ export function composer(
 
   return { experts, affectations: dossiers.map((d) => affectations.find((a) => a.dossierId === d.id)!), alertes };
 }
+
+// ---------------------------------------------------------------------
+// Vérificateurs d'un dossier (niveau 2), attribués au fil de l'eau
+// ---------------------------------------------------------------------
+export interface ExpertCharge extends ExpertPool { enCours: number; max: number }
+export interface Candidature { id: string; raison: string; pertinence: number }
+
+/**
+ * Propose les experts vérificateurs d'un dossier, du plus adapté au moins adapté.
+ * Tri : pertinence de spécialité, puis charge en cours la plus faible, puis rotation.
+ * Le second choisi couvre de préférence une spécialité secondaire non couverte par le premier.
+ */
+export function proposerVerificateurs(
+  d: DossierACompose, pool: ExpertCharge[], deja: string[] = [], nb = 2,
+  libelle: (code: string) => string = (c) => c,
+): Candidature[] {
+  const possibles = pool.filter((e) => e.disponible && !deja.includes(e.id) && !e.conflits.includes(d.id) && e.enCours < e.max);
+  const choisis: ExpertCharge[] = [];
+  const score = (e: ExpertCharge) => {
+    let s = pertinence(e, d) * 10 - e.enCours;
+    const dejaCouvertes = choisis.flatMap((c) => c.specialites.map((x) => x.code));
+    if (choisis.length && d.autres.some((a) => !dejaCouvertes.includes(a) && e.specialites.some((x) => x.code === a))) s += 5;
+    return s;
+  };
+  while (choisis.length < nb) {
+    const reste = possibles.filter((e) => !choisis.includes(e));
+    if (!reste.length) break;
+    reste.sort((a, b) => score(b) - score(a) || (a.dernierPassage ?? '').localeCompare(b.dernierPassage ?? ''));
+    choisis.push(reste[0]);
+  }
+  return choisis.map((e) => {
+    const p = pertinence(e, d);
+    const spe = p === 3 ? `référent ${libelle(d.principale)}` : p === 2 ? `compétent ${libelle(d.principale)}`
+      : p === 1 ? 'couvre une spécialité secondaire' : 'hors spécialité du dossier';
+    return { id: e.id, pertinence: p, raison: `${spe}, ${e.enCours} vérification${e.enCours > 1 ? 's' : ''} en cours` };
+  });
+}

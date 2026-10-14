@@ -107,3 +107,24 @@ describe('présence en ligne', () => {
     expect(erreurChamp(insta, 'mon insta')).not.toBe('');
   });
 });
+
+import { proposerVerificateurs, type ExpertCharge } from './composition';
+describe('proposerVerificateurs', () => {
+  const ex = (id: string, spe: [string, 'referent' | 'competent'][], enCours = 0, extra: Partial<ExpertCharge> = {}): ExpertCharge =>
+    ({ id, nom: id, ville: '', titres: [], disponible: true, dernierPassage: null, conflits: [], max: 15, enCours,
+       specialites: spe.map(([code, niveau]) => ({ code, niveau })), ...extra });
+  const d = { id: 'D1', principale: 'nouveau-ne', autres: ['mariage'] };
+  it('prend le référent puis couvre la spécialité secondaire', () => {
+    const pool = [ex('A', [['nouveau-ne', 'referent']]), ex('B', [['nouveau-ne', 'competent']]), ex('C', [['nouveau-ne', 'competent'], ['mariage', 'referent']])];
+    expect(proposerVerificateurs(d, pool).map((c) => c.id)).toEqual(['A', 'C']);
+  });
+  it('écarte conflits, indisponibles, déjà attribués et experts au plafond', () => {
+    const pool = [ex('A', [['nouveau-ne', 'referent']], 0, { conflits: ['D1'] }), ex('B', [['nouveau-ne', 'referent']], 15),
+      ex('C', [['nouveau-ne', 'referent']], 0, { disponible: false }), ex('E', [['nouveau-ne', 'referent']]), ex('F', [['portrait', 'referent']])];
+    expect(proposerVerificateurs(d, pool, ['E']).map((c) => c.id)).toEqual(['F']);
+  });
+  it('à pertinence égale, le moins chargé passe devant', () => {
+    const pool = [ex('A', [['nouveau-ne', 'referent']], 4), ex('B', [['nouveau-ne', 'referent']], 1)];
+    expect(proposerVerificateurs(d, pool, [], 1)[0].id).toBe('B');
+  });
+});

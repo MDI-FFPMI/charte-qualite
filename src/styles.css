@@ -210,3 +210,22 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .champs-grille .champ input, .champs-grille .champ select { padding: .7rem .85rem; font-size: 1rem; }
 .champs-grille .pleine { grid-column: 1 / -1; }
 .champs-grille input[aria-invalid="true"] { border-color: var(--critique); }
+
+/* ---------- Lecture d'un dossier et avis ---------- */
+.ligne-question { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: .85rem 0; border-top: 1px solid var(--trait); }
+.ligne-question.avec-avis { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); }
+.avis-col { display: flex; flex-direction: column; gap: .6rem; }
+.champs-lecture { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .5rem 1rem; }
+.avis-btn { border: 1px solid var(--trait); background: var(--fond); color: var(--encre); border-radius: 999px; padding: .3rem .7rem; font-size: .8rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.avis-btn.ok[aria-pressed="true"] { background: var(--bien); border-color: var(--bien); color: #fff; }
+.avis-btn.att[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); color: #fff; }
+.avis-btn.ko[aria-pressed="true"] { background: var(--critique); border-color: var(--critique); color: #fff; }
+.ligne-cliquable { cursor: pointer; }
+.bloc-etape { border-left: 3px solid var(--rouge); }
+.pile > .badge { align-self: flex-start; }
+.progression { height: 6px; background: var(--surface); border-radius: 999px; overflow: hidden; }
+.progression > span { display: block; height: 100%; background: var(--marine); }
+.retour { display: inline-flex; gap: .3rem; align-items: center; font-size: .9rem; text-decoration: none; font-weight: 500; }
+@media (max-width: 760px) {
+  .ligne-question.avec-avis { grid-template-columns: minmax(0, 1fr); }
+}
