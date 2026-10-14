@@ -17,7 +17,8 @@ export interface ExpertPool {
   conflits: string[];            // ids de dossiers sur lesquels l'expert est en conflit
 }
 
-export interface DossierACompose { id: string; principale: string; autres: string[] }
+/** principale : la première spécialité principale ; principales : toutes (1 à 4), sinon [principale] */
+export interface DossierACompose { id: string; principale: string; principales?: string[]; autres: string[] }
 
 export interface Affectation { dossierId: string; rapporteurs: string[]; raisons: string[]; alerte?: string }
 export interface Proposition {
@@ -29,13 +30,22 @@ export interface Proposition {
 const moisDepuis = (iso: string | null, ref: Date) =>
   iso ? Math.max(0, (ref.getTime() - Date.parse(iso)) / (30.44 * 864e5)) : 24;
 
-/** Pertinence d'un expert pour un dossier : 3 référent de la spécialité principale, 2 compétent, 1 autre spécialité */
+/** Pertinence d'un expert pour un dossier : 3 référent d'une spécialité principale, 2 compétent, 1 autre spécialité */
+const principalesDu = (d: DossierACompose) => (d.principales?.length ? d.principales : [d.principale]);
+
+/** Spécialité principale du dossier que l'expert couvre le mieux (pour expliquer la proposition) */
+export function speCouverte(e: ExpertPool, d: DossierACompose): string {
+  const niv = (code: string) => e.specialites.find((s) => s.code === code)?.niveau;
+  const ps = principalesDu(d);
+  return ps.find((c) => niv(c) === 'referent') ?? ps.find((c) => niv(c) === 'competent') ?? d.principale;
+}
+
 export function pertinence(e: ExpertPool, d: DossierACompose): number {
   if (e.conflits.includes(d.id)) return -1;
   const niv = (code: string) => e.specialites.find((s) => s.code === code)?.niveau;
-  const p = niv(d.principale);
-  if (p === 'referent') return 3;
-  if (p === 'competent') return 2;
+  const niveaux = principalesDu(d).map(niv);
+  if (niveaux.includes('referent')) return 3;
+  if (niveaux.includes('competent')) return 2;
   return d.autres.some((a) => niv(a)) ? 1 : 0;
 }
 
@@ -87,7 +97,7 @@ export function composer(
     for (const e of uniques) {
       charge.set(e.id, (charge.get(e.id) ?? 0) + 1);
       const p = pertinence(e, d);
-      raisons.push(`${e.nom} : ${p === 3 ? `référent ${libelle(d.principale)}` : p === 2 ? `compétent ${libelle(d.principale)}` : p === 1 ? 'couvre une spécialité secondaire' : 'complète le binôme'}`);
+      raisons.push(`${e.nom} : ${p === 3 ? `référent ${libelle(speCouverte(e, d))}` : p === 2 ? `compétent ${libelle(speCouverte(e, d))}` : p === 1 ? 'couvre une spécialité secondaire' : 'complète le binôme'}`);
     }
     const alerte = uniques.some((e) => pertinence(e, d) === 3) ? undefined
       : `Aucun référent ${libelle(d.principale)} dans la commission`;
@@ -97,7 +107,7 @@ export function composer(
   for (const a of affectations) if (a.alerte && !alertes.includes(a.alerte)) alertes.push(a.alerte);
 
   const experts = choisis.map((e) => {
-    const refs = [...new Set(dossiers.filter((d) => pertinence(e, d) === 3).map((d) => libelle(d.principale)))];
+    const refs = [...new Set(dossiers.filter((d) => pertinence(e, d) === 3).map((d) => libelle(speCouverte(e, d))))];
     const mois = Math.round(moisDepuis(e.dernierPassage, maintenant));
     const rotation = e.dernierPassage ? `n'a pas siégé depuis ${mois} mois` : "n'a encore jamais siégé";
     return {
@@ -141,7 +151,7 @@ export function proposerVerificateurs(
   }
   return choisis.map((e) => {
     const p = pertinence(e, d);
-    const spe = p === 3 ? `référent ${libelle(d.principale)}` : p === 2 ? `compétent ${libelle(d.principale)}`
+    const spe = p === 3 ? `référent ${libelle(speCouverte(e, d))}` : p === 2 ? `compétent ${libelle(speCouverte(e, d))}`
       : p === 1 ? 'couvre une spécialité secondaire' : 'hors spécialité du dossier';
     return { id: e.id, pertinence: p, raison: `${spe}, ${e.enCours} vérification${e.enCours > 1 ? 's' : ''} en cours` };
   });

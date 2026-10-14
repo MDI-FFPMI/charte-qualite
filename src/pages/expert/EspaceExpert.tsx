@@ -29,7 +29,7 @@ function MesVerifications() {
             <tr key={d.id} className="ligne-cliquable" onClick={() => nav(`/expert/dossier/${d.id}`)}>
               <td className="num"><Link to={`/expert/dossier/${d.id}`} onClick={(e) => e.stopPropagation()}>{d.numero}</Link></td>
               <td>{d.candidat || '-'}<br /><span className="petit discret">{d.ville}</span></td>
-              <td>{d.principale ? <><span className="puce-spe ref">{libSpe(d.principale)}</span>{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</td>
+              <td>{d.principales.length ? <>{d.principales.map((a) => <span key={a} className="puce-spe ref">{libSpe(a)}</span>)}{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</td>
               <td className="num">{dateFr(d.moi.attribue_le)}</td>
               <td>{d.moi.statut === 'termine' ? <span className="badge ok">Rendu le {dateFr(d.moi.termine_le)}</span> : <span className="badge att">À vérifier</span>}</td>
             </tr>
@@ -127,7 +127,7 @@ function FicheExpert() {
         </div>
         <div className="champs-lecture">
           <span><span className="discret petit">Candidat</span><br /><strong>{d.candidat || '-'}</strong>{d.ville && <><br /><span className="petit">{d.ville}</span></>}</span>
-          <span><span className="discret petit">Spécialités</span><br />{d.principale ? <><span className="puce-spe ref">{libSpe(d.principale)}</span>{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</span>
+          <span><span className="discret petit">Spécialités</span><br />{d.principales.length ? <>{d.principales.map((a) => <span key={a} className="puce-spe ref">{libSpe(a)}</span>)}{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</span>
           <span><span className="discret petit">Envoyé le</span><br /><span className="num">{dateFr(d.envoye_le)}</span></span>
         </div>
         {ouvert && (

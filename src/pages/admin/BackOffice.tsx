@@ -133,7 +133,7 @@ function ListeDossiers({ dossiers, filtre, setFiltre }: { dossiers: DossierLigne
       {!liste.length ? <p className="encart discret">Aucun dossier{filtre ? ' à cette étape' : ''}.</p> : (
         <div className="tableau-wrap">
           <table className="tableau">
-            <thead><tr><th>Dossier</th><th>Candidat</th><th>Spécialité</th><th>Envoyé le</th><th>Score indicatif</th><th>Vérificateurs</th><th>Étape</th></tr></thead>
+            <thead><tr><th>Dossier</th><th>Candidat</th><th>Spécialités principales</th><th>Envoyé le</th><th>Score indicatif</th><th>Vérificateurs</th><th>Étape</th></tr></thead>
             <tbody>
               {liste.map((d) => {
                 const a = actifs(d);
@@ -141,7 +141,7 @@ function ListeDossiers({ dossiers, filtre, setFiltre }: { dossiers: DossierLigne
                   <tr key={d.id} className="ligne-cliquable" onClick={() => nav(`/admin/dossier/${d.id}`)}>
                     <td className="num"><Link to={`/admin/dossier/${d.id}`} onClick={(e) => e.stopPropagation()}>{d.numero}</Link></td>
                     <td>{d.candidat || <span className="discret">Non renseigné</span>}<br /><span className="petit discret">{d.ville || d.email}</span></td>
-                    <td>{d.principale ? libSpe(d.principale) : '-'}</td>
+                    <td>{d.principales.length ? d.principales.map(libSpe).join(', ') : '-'}</td>
                     <td className="num">{dateFr(d.envoye_le)}</td>
                     <td className="num">{d.score_indicatif ? Number(d.score_indicatif).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) : '-'}</td>
                     <td className="petit">{a.length ? `${a.filter((v) => v.statut === 'termine').length} / ${a.length} rendus` : '-'}</td>
@@ -218,7 +218,7 @@ function FicheAdmin({ experts, rechargerListe }: { experts: Expert[]; rechargerL
         <div className="champs-lecture">
           <span><span className="discret petit">Entreprise</span><br /><strong>{d.candidat || '-'}</strong></span>
           <span><span className="discret petit">Contact</span><br />{d.contact || '-'}<br /><a href={`mailto:${d.email}`} className="petit">{d.email}</a></span>
-          <span><span className="discret petit">Spécialités</span><br />{d.principale ? <><span className="puce-spe ref">{libSpe(d.principale)}</span>{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</span>
+          <span><span className="discret petit">Spécialités</span><br />{d.principales.length ? <>{d.principales.map((a) => <span key={a} className="puce-spe ref">{libSpe(a)}</span>)}{d.autres.map((a) => <span key={a} className="puce-spe">{libSpe(a)}</span>)}</> : '-'}</span>
           <span><span className="discret petit">Charte de déontologie</span><br />{d.charte_acceptee_le
             ? <><span className="badge ok">Acceptée le {dateFr(d.charte_acceptee_le)} · v{d.charte_version}</span>
               {d.charte_phrase && <><br /><span className="petit discret">« {d.charte_phrase} »</span></>}</>

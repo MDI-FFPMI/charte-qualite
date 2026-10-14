@@ -2,7 +2,7 @@
 // emplacement pour les avis (contrôle FFPMI ou vérification expert).
 import { useState, type ReactNode } from 'react';
 import refJson from '../data/referentiel-v3.json';
-import { estAffichee, estPositive } from '../lib/scoring';
+import { estAffichee, estPositive, principalesDe } from '../lib/scoring';
 import { equipe, type Avis, type AvisLigne } from '../lib/equipe';
 import type { MaterielLigne, Piece, Question, Referentiel, Reponse, Reponses } from '../lib/types';
 
@@ -42,8 +42,10 @@ function Valeur({ q, r }: { q: Question; r: Reponse | undefined }) {
     case 'multi_choice': return <span>{(v as string[]).map(lib).join(' · ')}</span>;
     case 'url_list': return <span className="pile" style={{ gap: '.2rem' }}>{(v as string[]).filter(Boolean).map((u) => <span key={u}>{lien(u)}</span>)}</span>;
     case 'specialites': {
-      const s = v as { choisies?: string[]; principale?: string };
-      return <span>{(s.choisies ?? []).map((c) => <span key={c} className={`puce-spe${c === s.principale ? ' ref' : ''}`}>{libSpe(c)}{c === s.principale ? ' · principale' : ''}</span>)}</span>;
+      const s = v as { choisies?: string[] };
+      const pr = principalesDe(v);
+      const ordre = [...pr, ...(s.choisies ?? []).filter((c) => !pr.includes(c))];
+      return <span>{ordre.map((c) => <span key={c} className={`puce-spe${pr.includes(c) ? ' ref' : ''}`}>{libSpe(c)}{pr.includes(c) ? ' · principale' : ''}</span>)}</span>;
     }
     case 'materiel':
       return <span className="pile" style={{ gap: '.15rem' }}>{(v as MaterielLigne[]).map((m, i) => <span key={i}>{[m.type, m.modele, m.annee && `(${m.annee})`].filter(Boolean).join(' ')}</span>)}</span>;

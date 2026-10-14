@@ -59,7 +59,7 @@ export interface Referentiel {
 export type Valeur =
   | string                                   // yes_no ('oui'|'non'), choice, text, year ('2014')
   | string[]                                 // multi_choice, url_list
-  | { choisies: string[]; principale?: string } // specialites
+  | { choisies: string[]; principales?: string[]; principale?: string } // specialites (principale : ancien format)
   | MaterielLigne[]                          // materiel
   | Record<string, string>                   // coordonnees
   | null;

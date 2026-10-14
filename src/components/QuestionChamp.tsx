@@ -1,6 +1,6 @@
 import { useId, useState, type ChangeEvent } from 'react';
 import type { MaterielLigne, Piece, Question, Referentiel, Reponse, Reponses } from '../lib/types';
-import { erreurChamp, estPositive, estRepondue, justificatifManquant } from '../lib/scoring';
+import { erreurChamp, estPositive, estRepondue, justificatifManquant, MAX_PRINCIPALES, principalesDe } from '../lib/scoring';
 
 interface Props {
   q: Question;
@@ -180,7 +180,14 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
         );
       }
       case 'specialites': {
-        const v = (r.valeur && typeof r.valeur === 'object' && !Array.isArray(r.valeur) ? r.valeur : { choisies: [] }) as { choisies: string[]; principale?: string };
+        const v = (r.valeur && typeof r.valeur === 'object' && !Array.isArray(r.valeur) ? r.valeur : { choisies: [] }) as { choisies: string[]; principales?: string[]; principale?: string };
+        const principales = principalesDe(v);
+        const lib = (c: string) => ref.specialites.find((s) => s.value === c)?.label ?? c;
+        const ecrire = (choisies: string[], princ: string[]) => {
+          let pr = princ.filter((x) => choisies.includes(x)).slice(0, MAX_PRINCIPALES);
+          if (!pr.length && choisies.length) pr = choisies.slice(0, 1);
+          maj({ valeur: { choisies, principales: pr } });
+        };
         return (
           <div className="pile" style={{ gap: '.75rem' }}>
             <div className="choix" role="group" aria-label="Spécialités pratiquées">
@@ -189,19 +196,34 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
                   <input type="checkbox" checked={v.choisies.includes(s.value)} disabled={verrouille}
                     onChange={() => {
                       const choisies = v.choisies.includes(s.value) ? v.choisies.filter((x) => x !== s.value) : [...v.choisies, s.value];
-                      maj({ valeur: { choisies, principale: choisies.includes(v.principale ?? '') ? v.principale : choisies[0] } });
+                      ecrire(choisies, principales);
                     }} />
                   {s.label}
                 </label>
               ))}
             </div>
             {v.choisies.length > 0 && (
-              <label className="champ" style={{ maxWidth: 360 }}>
-                Spécialité principale
-                <select value={v.principale ?? ''} disabled={verrouille} onChange={(e) => maj({ valeur: { ...v, principale: e.target.value } })}>
-                  {v.choisies.map((c) => <option key={c} value={c}>{ref.specialites.find((s) => s.value === c)?.label}</option>)}
-                </select>
-              </label>
+              <fieldset className="pile" style={{ gap: '.4rem', border: 0, padding: 0, margin: 0 }}>
+                <legend style={{ fontWeight: 600, marginBottom: '.4rem' }}>
+                  Vos spécialités principales <span className="discret" style={{ fontWeight: 400 }}>(1 à {MAX_PRINCIPALES}, {principales.length} choisie{principales.length > 1 ? 's' : ''})</span>
+                </legend>
+                <div className="choix" role="group" aria-label="Spécialités principales">
+                  {v.choisies.map((c) => {
+                    const coche = principales.includes(c);
+                    const plein = !coche && principales.length >= MAX_PRINCIPALES;
+                    return (
+                      <label key={c} title={plein ? `${MAX_PRINCIPALES} spécialités principales au maximum` : undefined} style={plein ? { opacity: .5 } : undefined}>
+                        <input type="checkbox" checked={coche} disabled={verrouille || plein || (coche && principales.length === 1)}
+                          onChange={() => ecrire(v.choisies, coche ? principales.filter((x) => x !== c) : [...principales, c])} />
+                        {lib(c)}
+                      </label>
+                    );
+                  })}
+                </div>
+                {principales.length >= MAX_PRINCIPALES && v.choisies.length > MAX_PRINCIPALES && (
+                  <span className="petit discret">Maximum atteint : décochez une spécialité principale pour en choisir une autre.</span>
+                )}
+              </fieldset>
             )}
           </div>
         );

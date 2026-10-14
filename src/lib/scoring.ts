@@ -2,6 +2,17 @@ import type { ChampCoordonnees, Condition, Piece, Question, Referentiel, Reponse
 
 const anneeCourante = () => new Date().getFullYear();
 
+export const MAX_PRINCIPALES = 4;
+
+/** Spécialités principales d'une réponse 2.2 (1 à 4 ; accepte l'ancien format à une seule principale) */
+export function principalesDe(v: unknown): string[] {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return [];
+  const o = v as { choisies?: string[]; principales?: string[]; principale?: string };
+  const choisies = o.choisies ?? [];
+  const liste = o.principales ?? (o.principale ? [o.principale] : []);
+  return liste.filter((x) => choisies.includes(x)).slice(0, MAX_PRINCIPALES);
+}
+
 /** Liste des valeurs sélectionnées, quel que soit le type */
 export function valeursChoisies(v: Valeur | undefined): string[] {
   if (v == null) return [];
@@ -81,7 +92,7 @@ export function estRepondue(q: Question, r: Reponse | undefined): boolean {
     case 'url_list':
       return Array.isArray(v) && (v as string[]).filter(urlValide).length > 0;
     case 'specialites':
-      return typeof v === 'object' && !Array.isArray(v) && 'choisies' in v && v.choisies.length > 0 && !!v.principale;
+      return typeof v === 'object' && !Array.isArray(v) && 'choisies' in v && v.choisies.length > 0 && principalesDe(v).length > 0;
     case 'materiel':
       return Array.isArray(v) && v.some((l) => typeof l === 'object' && l && (l as { modele: string }).modele?.trim());
     case 'coordonnees': {

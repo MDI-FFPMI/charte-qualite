@@ -128,3 +128,19 @@ describe('proposerVerificateurs', () => {
     expect(proposerVerificateurs(d, pool, [], 1)[0].id).toBe('B');
   });
 });
+
+import { pertinence } from './composition';
+import { principalesDe } from './scoring';
+describe('spécialités principales', () => {
+  it('lit le nouveau et l\'ancien format', () => {
+    expect(principalesDe({ choisies: ['a', 'b', 'c'], principales: ['b', 'c'] })).toEqual(['b', 'c']);
+    expect(principalesDe({ choisies: ['a', 'b'], principale: 'a' })).toEqual(['a']);
+    expect(principalesDe({ choisies: ['a'], principales: ['z'] })).toEqual([]);
+  });
+  it('un expert référent de n\'importe quelle principale vaut 3', () => {
+    const e = { id: 'E', nom: 'E', ville: '', titres: [], disponible: true, dernierPassage: null, conflits: [],
+      specialites: [{ code: 'mariage', niveau: 'referent' as const }] };
+    expect(pertinence(e, { id: 'D', principale: 'nouveau-ne', principales: ['nouveau-ne', 'mariage'], autres: [] })).toBe(3);
+    expect(pertinence(e, { id: 'D', principale: 'nouveau-ne', autres: ['mariage'] })).toBe(1);
+  });
+});

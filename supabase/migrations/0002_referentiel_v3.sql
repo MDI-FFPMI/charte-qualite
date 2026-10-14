@@ -65,7 +65,7 @@ select 'V3', id, '2.1', 1, 'En quelle année avez-vous démarré votre activité
 from rubriques where version_id = 'V3' and numero = 2
 on conflict (version_id, code) do nothing;
 insert into questions (version_id, rubrique_id, code, ordre, libelle, aide, type, options, statut, points_max, note_par_experts, justificatifs, preuve_attendue, facultatif, condition, complements, champs, source)
-select 'V3', id, '2.2', 2, 'Quelles spécialités pratiquez-vous régulièrement ? Indiquez votre spécialité principale.', null, 'specialites', '[]'::jsonb, 'informatif', 0, false, null, false, false, null, '[]'::jsonb, '[]'::jsonb, null
+select 'V3', id, '2.2', 2, 'Quelles spécialités pratiquez-vous régulièrement ? Indiquez jusqu''à 4 spécialités principales.', 'Vos spécialités principales sont celles qui représentent l''essentiel de votre activité. La commission choisit ses experts en fonction d''elles.', 'specialites', '[]'::jsonb, 'informatif', 0, false, null, false, false, null, '[]'::jsonb, '[]'::jsonb, null
 from rubriques where version_id = 'V3' and numero = 2
 on conflict (version_id, code) do nothing;
 insert into questions (version_id, rubrique_id, code, ordre, libelle, aide, type, options, statut, points_max, note_par_experts, justificatifs, preuve_attendue, facultatif, condition, complements, champs, source)

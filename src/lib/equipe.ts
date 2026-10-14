@@ -3,6 +3,7 @@
 import { sb, estDemo, type StatutDossier } from './api';
 import type { Piece, Reponses } from './types';
 import type { Niveau } from './composition';
+import { principalesDe } from './scoring';
 import { dossiersDemo, expertsDemo, exempleReponses } from '../data/demo';
 
 export type Avis = 'conforme' | 'non_conforme' | 'a_completer';
@@ -31,7 +32,8 @@ export interface DossierLigne {
   contact: string;    // prénom nom
   email: string;
   ville: string;
-  principale: string;
+  principale: string;      // la première des principales
+  principales: string[];   // 1 à 4
   autres: string[];
   verificateurs: Verif[];
   charte_version?: string | null;
@@ -124,8 +126,9 @@ function apiEquipeSupabase(): ApiEquipe {
       const i = infos[d.id] ?? {};
       const ent = (i['0.2'] ?? {}) as Record<string, string>;
       const vous = (i['0.1'] ?? {}) as Record<string, string>;
-      const spe = (i['2.2'] ?? {}) as { choisies?: string[]; principale?: string };
-      const principale = spe.principale ?? spe.choisies?.[0] ?? '';
+      const spe = (i['2.2'] ?? {}) as { choisies?: string[] };
+      const principales = principalesDe(i['2.2']);
+      const principale = principales[0] ?? spe.choisies?.[0] ?? '';
       return {
         id: d.id, numero: d.numero, statut: d.statut, envoye_le: d.envoye_le, score_indicatif: d.score_indicatif,
         questions_rouvertes: d.questions_rouvertes ?? [], message_complements: d.message_complements,
@@ -135,7 +138,8 @@ function apiEquipeSupabase(): ApiEquipe {
         email: d.profiles?.email ?? '',
         ville: ent.ville ?? '',
         principale,
-        autres: (spe.choisies ?? []).filter((x) => x !== principale),
+        principales: principales.length ? principales : principale ? [principale] : [],
+        autres: (spe.choisies ?? []).filter((x) => x !== principale && !principales.includes(x)),
         verificateurs: verifs.filter((v) => v.dossier_id === d.id).map((v) => ({ ...v, nom: noms[v.expert_id] ?? 'Expert' })),
       };
     });
@@ -361,7 +365,7 @@ function apiEquipeDemo(): ApiEquipe {
     questions_rouvertes: d.questions_rouvertes, message_complements: d.message_complements,
     charte_version: d.statut === 'brouillon' ? null : '2026-10', charte_acceptee_le: d.statut === 'brouillon' ? null : d.recu,
     candidat: d.candidat, contact: 'Camille Exemple', email: 'exemple@studio-photo.fr', ville: d.ville,
-    principale: d.principale, autres: d.autres,
+    principale: d.principale, principales: [d.principale], autres: d.autres,
     verificateurs: verifs.filter((v) => v.dossier_id === d.id).map((v) => ({ ...v, nom: nomDe(v.expert_id) })),
   });
   const trouver = (id: string) => dossiers.find((d) => d.id === id)!;
