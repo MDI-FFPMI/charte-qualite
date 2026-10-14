@@ -416,8 +416,8 @@ function FormExpert({ initial, nouveau, onFini }: { initial?: Expert; nouveau?: 
       if (nouveau) {
         const r = await equipe.ajouterExpert({ ...v, titres: t });
         await onFini(r.emailEnvoye
-          ? `${v.prenom} ${v.nom} est ajouté au pool. Un lien de connexion lui a été envoyé par email.`
-          : `${v.prenom} ${v.nom} est ajouté au pool, mais l'email n'est pas parti (limite d'envoi). Il pourra se connecter lui-même depuis l'espace expert.`);
+          ? `${v.prenom} ${v.nom} est ajouté au pool. Il a reçu un lien par email pour choisir son mot de passe.`
+          : `${v.prenom} ${v.nom} est ajouté au pool. Son compte existait déjà : il se connecte à l'espace expert avec son mot de passe.`);
       } else {
         await equipe.modifierExpert(initial!.id, { prenom: v.prenom, nom: v.nom, ville: v.ville, specialites: v.specialites, titres: t, max: v.max, statut });
         await onFini('Fiche expert mise à jour.');
@@ -476,7 +476,7 @@ function Pool({ experts, recharger }: { experts: Expert[]; recharger: () => Prom
       {edition === 'nouveau' ? (
         <div className="carte pile">
           <h2 style={{ fontSize: '1.1rem' }}>Ajouter un expert</h2>
-          <p className="petit discret">Son compte est créé et il reçoit un lien de connexion. Il retrouve ensuite ses dossiers dans l'espace expert.</p>
+          <p className="petit discret">Si vous avez déjà créé son compte dans Supabase avec un mot de passe provisoire, il se connecte directement. Sinon, son compte est créé ici et il reçoit un lien pour choisir son mot de passe.</p>
           <FormExpert nouveau onFini={fini} />
         </div>
       ) : (

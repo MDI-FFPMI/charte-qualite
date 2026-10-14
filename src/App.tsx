@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { api, estDemo, type Role, type Utilisateur } from './lib/api';
 import Accueil from './pages/public/Accueil';
-import Connexion from './pages/public/Connexion';
+import Connexion, { MotDePasse } from './pages/public/Connexion';
 import EspaceCandidat from './pages/candidat/EspaceCandidat';
 import EspaceExpert from './pages/expert/EspaceExpert';
 import BackOffice from './pages/admin/BackOffice';
@@ -43,6 +43,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Accueil />} />
           <Route path="/connexion" element={<Connexion />} />
+          <Route path="/mot-de-passe" element={<MotDePasse />} />
           <Route path="/candidat/*" element={<Garde roles={['candidat']}><EspaceCandidat /></Garde>} />
           <Route path="/expert/*" element={<Garde roles={['expert']}><EspaceExpert /></Garde>} />
           <Route path="/admin/*" element={<Garde roles={['admin', 'gestionnaire']}><BackOffice /></Garde>} />

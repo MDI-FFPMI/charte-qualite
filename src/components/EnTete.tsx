@@ -59,7 +59,7 @@ export default function EnTete({ espace, liens = [] }: { espace: Espace; liens?:
               <NavLink key={l.to} to={l.to} end={l.end} className="lien-nav">{l.label}</NavLink>
             ))}
             {espace === 'public' && !utilisateur && <NavLink to="/connexion" className="lien-nav">Reprendre mon dossier</NavLink>}
-            {utilisateur && <span className="petit discret" style={{ padding: '0 .5rem' }}>{nom}</span>}
+            {utilisateur && <Link to="/mot-de-passe" className="petit discret" style={{ padding: '0 .5rem', textDecoration: 'none' }} title="Changer mon mot de passe">{nom}</Link>}
             {utilisateur && <button className="lien-nav" onClick={deconnexion}>Se déconnecter</button>}
           </nav>
         </div>

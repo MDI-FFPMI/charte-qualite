@@ -76,6 +76,7 @@ export interface ApiEquipe {
   attribuer(dossierId: string, expertIds: string[]): Promise<void>;
   retirerVerificateur(dossierId: string, expertId: string): Promise<void>;
   experts(): Promise<Expert[]>;
+  /** emailEnvoye : un lien a été envoyé (compte créé à l'instant) ; false si le compte existait déjà */
   ajouterExpert(e: NouvelExpert): Promise<{ emailEnvoye: boolean }>;
   modifierExpert(id: string, e: Partial<Pick<Expert, 'prenom' | 'nom' | 'ville' | 'specialites' | 'titres' | 'max' | 'statut' | 'conflits'>>): Promise<void>;
   // Espace expert
@@ -251,13 +252,20 @@ function apiEquipeSupabase(): ApiEquipe {
 
     async ajouterExpert(e) {
       const email = e.email.trim().toLowerCase();
-      // Crée le compte s'il n'existe pas et envoie un lien de connexion à l'expert
-      const { error: errLien } = await c.auth.signInWithOtp({
-        email, options: { shouldCreateUser: true, emailRedirectTo: `${location.origin}/connexion` },
-      });
-      const { data: p } = await c.from('profiles').select('id,role').eq('email', email).maybeSingle();
+      let { data: p } = await c.from('profiles').select('id,role').eq('email', email).maybeSingle();
+      let emailEnvoye = false;
       if (!p) {
-        throw new Error(`Le compte n'a pas pu être créé${errLien ? ` (${errLien.message})` : ''}. Créez-le dans Supabase (Authentication, Users, Add user) puis réessayez.`);
+        // Pas encore de compte : création et envoi d'un lien de connexion
+        const { error: errLien } = await c.auth.signInWithOtp({
+          email, options: { shouldCreateUser: true, emailRedirectTo: `${location.origin}/mot-de-passe` },
+        });
+        ({ data: p } = await c.from('profiles').select('id,role').eq('email', email).maybeSingle());
+        if (!p) {
+          throw new Error("Le compte de cet expert n'existe pas encore et n'a pas pu être créé automatiquement"
+            + `${errLien ? ` (${errLien.message})` : ''}. Créez-le dans Supabase : Authentication, Users, Add user, `
+            + 'avec un mot de passe provisoire et « Auto Confirm User » coché. Puis réessayez ici.');
+        }
+        emailEnvoye = !errLien;
       }
       const role = p.role === 'admin' || p.role === 'gestionnaire' ? p.role : 'expert';
       const { error: e1 } = await c.from('profiles').update({ role, prenom: e.prenom, nom: e.nom }).eq('id', p.id);
@@ -266,7 +274,7 @@ function apiEquipeSupabase(): ApiEquipe {
         id: p.id, ville: e.ville, specialites: e.specialites, titres: e.titres, max_dossiers_rapportes: e.max, statut: 'actif',
       });
       verifier(e2);
-      return { emailEnvoye: !errLien };
+      return { emailEnvoye };
     },
 
     async modifierExpert(id, e) {

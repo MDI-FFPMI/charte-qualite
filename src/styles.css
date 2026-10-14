@@ -229,3 +229,4 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 @media (max-width: 760px) {
   .ligne-question.avec-avis { grid-template-columns: minmax(0, 1fr); }
 }
+.lien-texte { border: 0; background: none; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; font: inherit; font-size: .85rem; text-align: left; align-self: flex-start; }

@@ -27,6 +27,14 @@ export interface Api {
   utilisateur(): Promise<Utilisateur | null>;
   /** creerCompte : inscription sans paiement (phase de test) */
   envoyerLien(email: string, creerCompte?: boolean): Promise<void>;
+  /** Connexion par mot de passe */
+  connexion(email: string, motDePasse: string): Promise<void>;
+  /** Création de compte candidat avec mot de passe (inscription libre) */
+  inscription(email: string, motDePasse: string): Promise<{ aConfirmer: boolean }>;
+  /** Email de réinitialisation du mot de passe */
+  motDePasseOublie(email: string): Promise<void>;
+  /** Nouveau mot de passe pour l'utilisateur connecté */
+  changerMotDePasse(motDePasse: string): Promise<void>;
   deconnexion(): Promise<void>;
   /** Prévient l'application quand la connexion change (retour par le lien email, déconnexion) */
   surChangement(cb: () => void): () => void;
@@ -65,6 +73,48 @@ function apiSupabase(sb: SupabaseClient): Api {
         if (m.includes('rate limit') || error.status === 429)
           throw new Error("Trop de demandes de lien en peu de temps. Patientez quelques minutes avant de réessayer.");
         throw new Error(`La demande de lien a échoué : ${error.message}`);
+      }
+    },
+    async connexion(email, motDePasse) {
+      const { error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: motDePasse });
+      if (error) {
+        const m = error.message.toLowerCase();
+        if (m.includes('invalid')) throw new Error('Email ou mot de passe incorrect.');
+        if (m.includes('not confirmed')) throw new Error("Votre adresse n'est pas encore confirmée : cliquez sur le lien reçu par email.");
+        throw new Error(`Connexion impossible : ${error.message}`);
+      }
+    },
+    async inscription(email, motDePasse) {
+      const { data, error } = await sb.auth.signUp({
+        email: email.trim().toLowerCase(), password: motDePasse,
+        options: { emailRedirectTo: `${location.origin}/connexion` },
+      });
+      if (error) {
+        const m = error.message.toLowerCase();
+        if (m.includes('already') || m.includes('registered')) throw new Error('Un compte existe déjà avec cette adresse. Connectez-vous avec votre mot de passe, ou utilisez « Mot de passe oublié ».');
+        if (m.includes('password')) throw new Error('Mot de passe trop faible : 8 caractères au moins, avec lettres et chiffres.');
+        throw new Error(`Création du compte impossible : ${error.message}`);
+      }
+      // Compte déjà existant (Supabase ne le signale pas pour ne pas révéler les adresses)
+      if (data.user && !data.session && (data.user.identities ?? []).length === 0)
+        throw new Error('Un compte existe déjà avec cette adresse. Connectez-vous avec votre mot de passe, ou utilisez « Mot de passe oublié ».');
+      return { aConfirmer: !data.session };
+    },
+    async motDePasseOublie(email) {
+      const { error } = await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${location.origin}/mot-de-passe` });
+      if (error) {
+        if (error.status === 429 || error.message.toLowerCase().includes('rate limit'))
+          throw new Error('Trop de demandes en peu de temps. Patientez quelques minutes avant de réessayer.');
+        throw new Error(`Envoi impossible : ${error.message}`);
+      }
+    },
+    async changerMotDePasse(motDePasse) {
+      const { error } = await sb.auth.updateUser({ password: motDePasse });
+      if (error) {
+        const m = error.message.toLowerCase();
+        if (m.includes('same')) throw new Error("Choisissez un mot de passe différent de l'ancien.");
+        if (m.includes('password')) throw new Error('Mot de passe trop faible : 8 caractères au moins, avec lettres et chiffres.');
+        throw new Error(error.message);
       }
     },
     async deconnexion() { await sb.auth.signOut(); },
@@ -165,6 +215,10 @@ function apiDemo(): Api {
       return { id: 'demo', email: 'exemple@studio-photo.fr', prenom: noms[e.role][0], nom: noms[e.role][1], role: e.role };
     },
     async envoyerLien() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); },
+    async connexion() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); },
+    async inscription() { maj((e) => { e.connecte = true; e.role = 'candidat'; }); return { aConfirmer: false }; },
+    async motDePasseOublie() {},
+    async changerMotDePasse() {},
     async deconnexion() { maj((e) => { e.connecte = false; }); },
     surChangement() { return () => {}; },
     async monDossier() { return etat().dossier; },
