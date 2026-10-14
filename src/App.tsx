@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { api, estDemo, type Role, type Utilisateur } from './lib/api';
 import Accueil from './pages/public/Accueil';
+import { AQuoiCaSert, Deontologie, PourQui, Preparer, Questions } from './pages/public/PagesSite';
+import Annuaire, { FichePublique } from './pages/public/Annuaire';
 import Connexion, { MotDePasse } from './pages/public/Connexion';
 import EspaceCandidat from './pages/candidat/EspaceCandidat';
 import EspaceExpert from './pages/expert/EspaceExpert';
@@ -42,6 +44,13 @@ export default function App() {
       <Routeur>
         <Routes>
           <Route path="/" element={<Accueil />} />
+          <Route path="/a-quoi-ca-sert" element={<AQuoiCaSert />} />
+          <Route path="/pour-qui" element={<PourQui />} />
+          <Route path="/preparer" element={<Preparer />} />
+          <Route path="/deontologie" element={<Deontologie />} />
+          <Route path="/questions" element={<Questions />} />
+          <Route path="/carte" element={<Annuaire />} />
+          <Route path="/photographe/:slug" element={<FichePublique />} />
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/mot-de-passe" element={<MotDePasse />} />
           <Route path="/candidat/*" element={<Garde roles={['candidat']}><EspaceCandidat /></Garde>} />

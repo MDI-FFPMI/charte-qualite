@@ -12,7 +12,7 @@ const libelleEspace: Record<Espace, string> = {
   admin: 'Back-office',
 };
 
-function BarreDemo({ espace }: { espace: Espace }) {
+export function BarreDemo({ espace }: { espace: Espace }) {
   const { rafraichir } = useSession();
   const nav = useNavigate();
   const aller = async (role: Role) => {

@@ -4,6 +4,7 @@ import EnTete from '../../components/EnTete';
 import QuestionChamp from '../../components/QuestionChamp';
 import refJson from '../../data/referentiel-v3.json';
 import EncadreCharte from '../../components/EncadreCharte';
+import MaFiche from './MaFiche';
 import { CHARTE_VERSION } from '../../data/charte-deontologie';
 import { api, type Dossier } from '../../lib/api';
 import { bilanDossier, estAffichee, valeursChoisies } from '../../lib/scoring';
@@ -95,6 +96,7 @@ function Sommaire({ e }: { e: Etat }) {
         );
       })}
       <NavLink to="/candidat/envoi"><span className="pastille" aria-hidden="true">→</span><span>Vérifier et envoyer</span><span /></NavLink>
+      <NavLink to="/candidat/fiche"><span className="pastille" aria-hidden="true">◎</span><span>Ma fiche annuaire</span><span /></NavLink>
     </nav>
   );
 }
@@ -304,6 +306,7 @@ export default function EspaceCandidat() {
                   <Route index element={<TableauDeBord e={e} />} />
                   <Route path="rubrique/:n" element={<PageRubrique e={e} />} />
                   <Route path="envoi" element={<PageEnvoi e={e} />} />
+                  <Route path="fiche" element={<MaFiche reponses={e.reponses} statut={e.dossier?.statut ?? ''} />} />
                 </Routes>
               </div>
             </div>
