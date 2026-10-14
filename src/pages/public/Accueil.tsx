@@ -1,89 +1,75 @@
 import { Link } from 'react-router-dom';
 import Site, { BoutonDeposer, PDF_CHARTE, PDF_GUIDE } from '../../components/site/Site';
-import ref from '../../data/referentiel-v3.json';
-import type { Referentiel } from '../../lib/types';
+import photo from '../../assets/hero-photographe.jpg';
 
-const referentiel = ref as Referentiel;
+const GARANTIES = [
+  ['Déclaré et assuré', 'Un photographe immatriculé, à jour de ses obligations et assuré en responsabilité civile professionnelle.'],
+  ['Engagé envers ses clients', 'Des prix annoncés, un contrat écrit, des délais tenus, des images et des données protégées.'],
+  ['Reconnu par ses pairs', 'Un dossier vérifié par deux experts de sa spécialité, puis examiné par une commission de six professionnels.'],
+];
+
+const ETAPES = [
+  ['Je me prépare', 'Le guide liste les documents à rassembler.'],
+  ['Je remplis mon dossier', 'En ligne, environ 45 minutes, à mon rythme.'],
+  ['Mon dossier est vérifié', 'Par l\'équipe MDI, puis par deux experts.'],
+  ['La commission décide', 'Une décision motivée, valable 2 ans.'],
+];
 
 export default function Accueil() {
-  const questions = referentiel.rubriques.flatMap((r) => r.questions);
-  const rubriques = referentiel.rubriques.filter((r) => r.questions.some((q) => q.points_max > 0));
-  const nbElim = questions.filter((q) => q.statut === 'eliminatoire').length;
-
   return (
     <Site large documents={[PDF_GUIDE, PDF_CHARTE]}>
-      <section className="accueil-tete">
-        <div>
-          <p className="espace-etiquette" style={{ color: 'var(--rouge)', padding: 0, marginBottom: '.75rem' }}>Charte Qualité FFPMI</p>
-          <h1>Faites reconnaître la qualité de votre travail de photographe</h1>
-          <p className="chapo">
-            La Charte Qualité Photographe Professionnel de France atteste que votre entreprise respecte ses obligations,
-            protège ses clients et maîtrise son métier. Elle est délivrée pour 2 ans par une commission d'experts de la profession.
-          </p>
-          <div className="ligne" style={{ marginTop: '1.5rem' }}>
-            <BoutonDeposer className="bouton deposer grand" />
-            <Link to="/a-quoi-ca-sert" className="bouton secondaire">Découvrir la Charte</Link>
+      <section className="hero">
+        <div className="hero-texte">
+          <h1>La Charte Qualité des photographes professionnels</h1>
+          <p>La Charte Qualité distingue les photographes qui exercent leur métier dans le respect des bonnes pratiques professionnelles.</p>
+          <div className="hero-boutons">
+            <BoutonDeposer className="bouton deposer hero-btn">Je dépose ma candidature</BoutonDeposer>
+            <Link to="/la-charte" className="bouton hero-btn hero-btn-contour">En savoir plus</Link>
           </div>
         </div>
-        <div className="carte tarif">
-          <div>
-            <div className="prix num">199 €</div>
-            <p className="discret">pour 2 ans · 149 € pour les adhérents FFPMI</p>
+        <div className="hero-visuel" aria-hidden="true">
+          <span className="hero-forme marine" />
+          <span className="hero-forme rouge" />
+          <img src={photo} alt="" className="hero-photo" />
+        </div>
+      </section>
+
+      <section className="garanties">
+        {GARANTIES.map(([titre, texte], i) => (
+          <div key={titre} className="garantie">
+            <span className="garantie-num num">0{i + 1}</span>
+            <h2>{titre}</h2>
+            <p>{texte}</p>
           </div>
-          <ul className="petit" style={{ margin: 0, paddingLeft: '1.1rem' }}>
-            <li>Dossier en ligne, environ 45 minutes</li>
-            <li>Enregistrement automatique, reprise à tout moment</li>
-            <li>Une commission tous les deux mois</li>
-            <li>Votre fiche sur la carte des titulaires</li>
-          </ul>
-          <BoutonDeposer className="bouton deposer" />
-          <Link to="/connexion" className="bouton secondaire">Reprendre mon dossier</Link>
+        ))}
+      </section>
+
+      <section className="double-entree">
+        <div className="entree marine">
+          <span className="entree-pour">Photographes</span>
+          <h2>Faites reconnaître votre exigence</h2>
+          <p>Le dossier passe en revue toute votre entreprise. Même avant la décision, il vous aide à progresser.</p>
+          <div className="ligne">
+            <Link to="/la-charte#pour-qui" className="bouton entree-btn">Qui peut candidater</Link>
+            <Link to="/preparer" className="bouton entree-btn contour">Bien se préparer</Link>
+          </div>
         </div>
-      </section>
-
-      <section className="chiffres" aria-label="La Charte en chiffres">
-        <div className="chiffre"><strong className="num">2 ans</strong>de validité, puis renouvellement</div>
-        <div className="chiffre"><strong className="num">{nbElim}</strong>conditions obligatoires, issues de la loi et du métier</div>
-        <div className="chiffre"><strong className="num">{referentiel.version.seuil_obtention} / {referentiel.version.base_score}</strong>points pour obtenir la Charte</div>
-        <div className="chiffre"><strong className="num">6</strong>experts de la profession en commission</div>
-      </section>
-
-      <section className="pile">
-        <h2 className="equerre">Tout savoir sur la Charte</h2>
-        <div className="cartes-liens">
-          <Link to="/a-quoi-ca-sert" className="carte-lien"><h3>À quoi ça sert</h3><p className="discret petit">Se distinguer, rassurer ses clients et faire progresser son entreprise.</p><span className="suite">Lire →</span></Link>
-          <Link to="/pour-qui" className="carte-lien"><h3>Pour qui</h3><p className="discret petit">Les conditions pour candidater et ce qu'il faut avoir en place.</p><span className="suite">Lire →</span></Link>
-          <Link to="/preparer" className="carte-lien"><h3>Bien préparer sa candidature</h3><p className="discret petit">Les documents à rassembler et les questions à se poser, rubrique par rubrique.</p><span className="suite">Lire →</span></Link>
-          <Link to="/carte" className="carte-lien"><h3>Carte des titulaires</h3><p className="discret petit">Trouvez un photographe titulaire de la Charte près de chez vous.</p><span className="suite">Voir la carte →</span></Link>
-          <Link to="/deontologie" className="carte-lien"><h3>Charte de déontologie</h3><p className="discret petit">Les engagements de chaque titulaire envers ses clients et sa profession.</p><span className="suite">Lire →</span></Link>
-          <Link to="/questions" className="carte-lien"><h3>Questions fréquentes</h3><p className="discret petit">Prix, délais, recours, renouvellement, confidentialité.</p><span className="suite">Lire →</span></Link>
+        <div className="entree claire">
+          <span className="entree-pour">Particuliers et entreprises</span>
+          <h2>Trouvez un photographe titulaire</h2>
+          <p>Chaque titulaire s'est engagé à respecter la charte de déontologie de la profession.</p>
+          <div className="ligne">
+            <Link to="/carte" className="bouton principal">Voir la carte</Link>
+            <Link to="/deontologie" className="bouton secondaire">Ses engagements</Link>
+          </div>
         </div>
       </section>
 
       <section className="pile">
-        <h2 className="equerre">Comment ça se passe</h2>
-        <div className="etapes">
-          <div className="etape pile" style={{ gap: '.35rem' }}><h3>Votre inscription</h3><p className="discret">Vous créez votre compte et réglez en ligne. Votre dossier s'ouvre aussitôt.</p></div>
-          <div className="etape pile" style={{ gap: '.35rem' }}><h3>Votre dossier</h3><p className="discret">{questions.length} questions, environ 45 minutes. Vous pouvez vous arrêter et reprendre quand vous voulez.</p></div>
-          <div className="etape pile" style={{ gap: '.35rem' }}><h3>La vérification</h3><p className="discret">L'équipe MDI contrôle vos pièces, puis deux experts de votre spécialité les vérifient.</p></div>
-          <div className="etape pile" style={{ gap: '.35rem' }}><h3>La commission</h3><p className="discret">Six experts notent vos galeries. Vous recevez une décision motivée, avec recours possible.</p></div>
-        </div>
-      </section>
-
-      <section className="pile">
-        <h2 className="equerre">Le référentiel</h2>
-        <p style={{ maxWidth: '65ch' }}>
-          {nbElim} conditions obligatoires et {questions.filter((q) => q.statut === 'valorise').length} critères qui rapportent des points.
-          Le score est calculé sur les seules questions qui vous concernent.
-        </p>
-        <div className="rubriques-liste">
-          {rubriques.map((r) => (
-            <div key={r.numero}>
-              <span>{r.titre}</span>
-              <span className="num discret">{r.questions.reduce((t, q) => t + q.points_max, 0)} pts</span>
-            </div>
-          ))}
-        </div>
+        <h2 className="equerre">En quatre étapes</h2>
+        <ol className="etapes-ligne">
+          {ETAPES.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
+        </ol>
       </section>
     </Site>
   );

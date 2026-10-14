@@ -9,8 +9,7 @@ import { estDemo, lienPaiement } from '../../lib/api';
 import { accueilDuRole, useSession } from '../../App';
 
 export const MENU = [
-  { to: '/a-quoi-ca-sert', label: 'À quoi ça sert', court: 'À quoi ça sert' },
-  { to: '/pour-qui', label: 'Pour qui', court: 'Pour qui' },
+  { to: '/la-charte', label: 'La Charte Qualité', court: 'La Charte' },
   { to: '/preparer', label: 'Bien préparer sa candidature', court: 'Se préparer' },
   { to: '/carte', label: 'Carte des titulaires', court: 'Carte des titulaires' },
   { to: '/deontologie', label: 'Charte de déontologie', court: 'Déontologie' },
@@ -26,8 +25,12 @@ export function BoutonDeposer({ className = 'bouton deposer', children = 'Je dé
 function EnTeteSite() {
   const { utilisateur } = useSession();
   const [ouvert, setOuvert] = useState(false);
-  const { pathname } = useLocation();
-  useEffect(() => { setOuvert(false); window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    setOuvert(false);
+    if (hash) setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }), 60);
+    else window.scrollTo(0, 0);
+  }, [pathname, hash]);
   return (
     <>
       {estDemo && <BarreDemo espace="public" />}
@@ -95,7 +98,7 @@ export function AppelDepot({ titre = 'Prêt à faire reconnaître votre travail 
     <section className="appel-depot">
       <div>
         <h2>{titre}</h2>
-        <p>199 € pour 2 ans, 149 € pour les adhérents FFPMI. Dossier en ligne, environ 45 minutes, enregistré au fur et à mesure.</p>
+        <p>Un dossier en ligne d'environ 45 minutes, enregistré au fur et à mesure, examiné par des experts de votre spécialité.</p>
       </div>
       <div className="ligne">
         <BoutonDeposer className="bouton deposer grand" />

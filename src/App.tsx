@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { api, estDemo, type Role, type Utilisateur } from './lib/api';
 import Accueil from './pages/public/Accueil';
-import { AQuoiCaSert, Deontologie, PourQui, Preparer, Questions } from './pages/public/PagesSite';
+import { Deontologie, LaCharte, Preparer, Questions } from './pages/public/PagesSite';
 import Annuaire, { FichePublique } from './pages/public/Annuaire';
 import Connexion, { MotDePasse } from './pages/public/Connexion';
 import EspaceCandidat from './pages/candidat/EspaceCandidat';
@@ -44,8 +44,9 @@ export default function App() {
       <Routeur>
         <Routes>
           <Route path="/" element={<Accueil />} />
-          <Route path="/a-quoi-ca-sert" element={<AQuoiCaSert />} />
-          <Route path="/pour-qui" element={<PourQui />} />
+          <Route path="/la-charte" element={<LaCharte />} />
+          <Route path="/a-quoi-ca-sert" element={<Navigate to="/la-charte" replace />} />
+          <Route path="/pour-qui" element={<Navigate to="/la-charte#pour-qui" replace />} />
           <Route path="/preparer" element={<Preparer />} />
           <Route path="/deontologie" element={<Deontologie />} />
           <Route path="/questions" element={<Questions />} />

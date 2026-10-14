@@ -351,3 +351,47 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .site-entete .conteneur { flex-wrap: nowrap; }
 @media (max-width: 1100px) { .site-entete .conteneur { flex-wrap: wrap; } }
 .guide-contenu p, .texte-long p { margin: 0 0 .85rem; }
+
+/* ---------- Accueil ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; padding-block: 1rem 2rem; }
+.hero-texte h1 { font-size: clamp(2rem, 4.3vw, 3.5rem); font-weight: 600; text-transform: uppercase; color: var(--accent); line-height: 1.08; letter-spacing: .005em; margin: 0; }
+.hero-texte p { font-size: clamp(1.02rem, 1.4vw, 1.2rem); color: var(--discret); max-width: 46ch; margin: 1.5rem 0 2.25rem; line-height: 1.7; }
+.hero-boutons { display: flex; gap: 1rem; flex-wrap: wrap; }
+.hero-btn { text-transform: uppercase; letter-spacing: .04em; font-weight: 600; padding: 1rem 1.6rem; min-width: 14rem; }
+.hero-btn-contour { background: var(--fond); color: var(--accent); border: 1.5px solid var(--rouge); }
+.hero-btn-contour:hover { background: var(--accent-doux); }
+.hero-visuel { position: relative; aspect-ratio: 924 / 667; width: 100%; }
+.hero-forme, .hero-photo { position: absolute; width: 83.3%; height: 76.9%; }
+.hero-forme.marine { left: 0; top: 0; background: var(--marine); border-top-left-radius: 39% 58%; z-index: 1; }
+.hero-forme.rouge { left: 16.7%; top: 23.1%; background: var(--rouge); }
+.hero-photo { left: 8.33%; top: 11.5%; object-fit: cover; border-radius: 40% 0 40% 0 / 60% 0 60% 0; z-index: 2; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } .hero-visuel { order: -1; max-width: 520px; } .hero-btn { min-width: 0; flex: 1 1 100%; } }
+.garanties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 3vw, 3rem); border-top: 1px solid var(--trait); padding-top: 2.5rem; }
+.garantie h2 { font-size: 1.3rem; font-weight: 800; color: var(--accent); margin: .4rem 0 .5rem; }
+.garantie p { margin: 0; color: var(--discret); line-height: 1.65; }
+.garantie-num { font-size: .9rem; font-weight: 800; color: var(--rouge); letter-spacing: .08em; }
+@media (max-width: 760px) { .garanties { grid-template-columns: 1fr; } }
+.double-entree { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.entree { border-radius: 14px; padding: clamp(1.5rem, 3vw, 2.5rem); display: flex; flex-direction: column; gap: .8rem; }
+.entree h2 { font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 800; margin: 0; line-height: 1.2; }
+.entree p { margin: 0 0 .5rem; line-height: 1.65; max-width: 44ch; }
+.entree-pour { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.entree.marine { background: var(--marine); color: #fff; border-top-left-radius: 70px; }
+.entree.marine h2 { color: #fff; }
+.entree.marine .entree-pour { color: #ffb3b7; }
+.entree.marine p { opacity: .88; }
+.entree.claire { background: var(--surface); border-bottom-right-radius: 70px; }
+.entree.claire h2 { color: var(--accent); }
+.entree.claire .entree-pour { color: var(--rouge); }
+.entree-btn { background: #fff; color: var(--marine); }
+.entree-btn.contour { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.6); }
+@media (max-width: 760px) { .double-entree { grid-template-columns: 1fr; } }
+.etapes-ligne { list-style: none; counter-reset: e; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; padding: 0; }
+.etapes-ligne li { counter-increment: e; display: flex; flex-direction: column; gap: .3rem; padding-top: 1rem; border-top: 3px solid var(--marine); }
+.etapes-ligne li::before { content: counter(e); font-weight: 800; color: var(--rouge); font-size: 1.5rem; line-height: 1; }
+.etapes-ligne strong { color: var(--accent); }
+.etapes-ligne span { color: var(--discret); font-size: .92rem; }
+@media (max-width: 760px) { .etapes-ligne { grid-template-columns: 1fr 1fr; } }
+.liste-nette { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .55rem; line-height: 1.6; }
+.liste-nette li::marker { color: var(--rouge); }
+#a-quoi-ca-sert, #pour-qui, #conditions { scroll-margin-top: 90px; }

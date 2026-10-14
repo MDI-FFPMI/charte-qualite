@@ -12,82 +12,77 @@ import type { Referentiel } from '../../lib/types';
 const referentiel = ref as Referentiel;
 
 // ---------------------------------------------------------------------
-export function AQuoiCaSert() {
-  return (
-    <Site titre="À quoi sert la Charte Qualité" documents={[PDF_GUIDE, PDF_CHARTE]}
-      chapo="Elle permet au public de reconnaître un photographe déclaré, assuré, compétent et engagé envers ses clients. Pour le photographe, c'est aussi un audit complet de son entreprise.">
-      <div className="deux-colonnes">
-        <section className="carte pile">
-          <h2 style={{ fontSize: '1.2rem', color: 'var(--accent)' }}>Pour vous, photographe</h2>
-          <ul className="pile" style={{ gap: '.6rem', margin: 0, paddingLeft: '1.1rem' }}>
-            <li><strong>Vous distinguer.</strong> La Charte est délivrée par la fédération de la profession, après examen de votre dossier par des experts.</li>
-            <li><strong>Rassurer vos clients.</strong> Elle montre que vous êtes en règle, assuré, que vous travaillez avec un contrat clair et que vous protégez leurs images et leurs données.</li>
-            <li><strong>Faire progresser votre entreprise.</strong> Le dossier passe en revue votre statut, votre relation client, votre gestion, la sécurité de vos fichiers. Chaque critère manqué est une piste d'amélioration concrète.</li>
-            <li><strong>Être trouvé.</strong> Si vous le souhaitez, votre fiche apparaît sur la carte des titulaires, avec votre photo, vos spécialités et vos liens.</li>
-            <li><strong>Avoir un retour d'experts.</strong> Vos galeries sont notées par des professionnels de votre spécialité.</li>
-          </ul>
-        </section>
-        <section className="carte pile">
-          <h2 style={{ fontSize: '1.2rem', color: 'var(--accent)' }}>Pour vos clients</h2>
-          <ul className="pile" style={{ gap: '.6rem', margin: 0, paddingLeft: '1.1rem' }}>
-            <li><strong>Un professionnel déclaré.</strong> Immatriculé, à jour de ses cotisations, assuré en responsabilité civile professionnelle.</li>
-            <li><strong>Des engagements écrits.</strong> Prix connus avant la séance, contrat, conditions de vente, délai de livraison, droits d'utilisation des images.</li>
-            <li><strong>Des personnes protégées.</strong> Sécurité des modèles, en particulier des nouveau-nés et des enfants, et respect du droit à l'image.</li>
-            <li><strong>Un recours.</strong> Un médiateur de la consommation en cas de litige, et la possibilité de signaler un manquement à la FFPMI.</li>
-          </ul>
-        </section>
-      </div>
-      <section className="texte-long">
-        <h2>Ce que la Charte n'est pas</h2>
-        <p>
-          Ce n'est ni un concours ni un titre artistique. La Charte atteste un ensemble : le respect de la loi, la qualité de la relation client,
-          la compétence et la constance du travail. Un photographe peut avoir un très beau portfolio et ne pas l'obtenir s'il ne protège pas ses clients,
-          et inversement.
-        </p>
-        <h2>Qui la délivre</h2>
-        <p>
-          La Fédération Française de la Photographie et des Métiers de l'Image (FFPMI) a créé la Charte. Elle en confie la gestion à son organisme
-          MDI - Métiers de l'Image : réception et vérification des dossiers, organisation des commissions, suivi des titulaires.
-          Les décisions sont prises par une commission d'experts de la profession, réunie tous les deux mois.
-        </p>
-        <p><Link to="/pour-qui">Voir qui peut candidater →</Link></p>
-      </section>
-    </Site>
-  );
-}
-
-// ---------------------------------------------------------------------
-export function PourQui() {
+export function LaCharte() {
   const elim = referentiel.rubriques.flatMap((r) => r.questions).filter((q) => q.statut === 'eliminatoire');
   return (
-    <Site titre="Pour qui" documents={[PDF_GUIDE]}
-      chapo="La Charte est ouverte à tous les photographes professionnels déclarés, adhérents de la FFPMI ou non, quelle que soit leur spécialité.">
-      <section className="deux-colonnes">
-        <div className="carte pile">
-          <h2 style={{ fontSize: '1.2rem', color: 'var(--accent)' }}>Vous pouvez candidater si</h2>
-          <ul className="pile" style={{ gap: '.5rem', margin: 0, paddingLeft: '1.1rem' }}>
-            <li>votre activité de photographe est <strong>immatriculée</strong>, quel que soit votre statut : micro-entreprise, entreprise individuelle ou société ;</li>
-            <li>la photographie est votre activité <strong>principale ou secondaire</strong> ;</li>
-            <li>vous travaillez pour des <strong>particuliers, des professionnels</strong>, ou les deux.</li>
-          </ul>
-          <p className="petit discret" style={{ margin: 0 }}>Aucune ancienneté minimale n'est exigée : l'expérience rapporte des points, elle n'est pas une condition.</p>
-        </div>
-        <div className="carte pile">
-          <h2 style={{ fontSize: '1.2rem', color: 'var(--accent)' }}>Toutes les spécialités</h2>
-          <div>{referentiel.specialites.map((s) => <span key={s.value} className="puce-spe">{s.label}</span>)}</div>
-          <p className="petit discret" style={{ margin: 0 }}>Vous indiquez jusqu'à 4 spécialités principales : les experts qui étudient votre dossier sont choisis en fonction d'elles.</p>
+    <Site titre="La Charte Qualité" documents={[PDF_GUIDE, PDF_CHARTE]}
+      chapo="Elle distingue les photographes qui exercent leur métier dans le respect des bonnes pratiques professionnelles : déclarés, assurés, compétents et engagés envers leurs clients.">
+      <section className="pile" id="a-quoi-ca-sert">
+        <h2 className="equerre">À quoi elle sert</h2>
+        <div className="deux-colonnes">
+          <div className="carte pile">
+            <h3 style={{ color: 'var(--accent)', margin: 0 }}>Pour le photographe</h3>
+            <ul className="liste-nette">
+              <li><strong>Se distinguer</strong> avec une reconnaissance délivrée par la fédération de la profession.</li>
+              <li><strong>Rassurer ses clients</strong> : en règle, assuré, contrat clair, images et données protégées.</li>
+              <li><strong>Progresser</strong> : le dossier passe en revue toute l'entreprise, chaque critère manqué est une piste concrète.</li>
+              <li><strong>Être trouvé</strong> grâce à sa fiche sur la carte des titulaires.</li>
+              <li><strong>Avoir un regard d'experts</strong> sur ses galeries, par des professionnels de sa spécialité.</li>
+            </ul>
+          </div>
+          <div className="carte pile">
+            <h3 style={{ color: 'var(--accent)', margin: 0 }}>Pour ses clients</h3>
+            <ul className="liste-nette">
+              <li><strong>Un professionnel déclaré</strong>, à jour de ses cotisations et assuré.</li>
+              <li><strong>Des engagements écrits</strong> : prix connus avant la séance, contrat, délai de livraison, droits sur les images.</li>
+              <li><strong>Des personnes protégées</strong>, en particulier les nouveau-nés et les enfants.</li>
+              <li><strong>Un recours</strong> en cas de litige : médiateur de la consommation, signalement à la FFPMI.</li>
+            </ul>
+          </div>
         </div>
       </section>
-      <section className="texte-long">
-        <h2>Les {elim.length} conditions obligatoires</h2>
-        <p>Elles viennent de la loi et des fondamentaux du métier. Toutes doivent être remplies, justificatifs à l'appui, pour que le dossier puisse être envoyé.</p>
-        <ol className="pile" style={{ gap: '.4rem' }}>{elim.map((q) => <li key={q.code}>{q.libelle}</li>)}</ol>
-        <h2>Et ensuite, des points</h2>
+
+      <section className="pile" id="pour-qui">
+        <h2 className="equerre">Pour qui</h2>
+        <div className="deux-colonnes">
+          <div className="carte pile">
+            <h3 style={{ color: 'var(--accent)', margin: 0 }}>Tous les photographes professionnels déclarés</h3>
+            <ul className="liste-nette">
+              <li>Quel que soit le statut : micro-entreprise, entreprise individuelle ou société.</li>
+              <li>En activité principale ou secondaire.</li>
+              <li>Pour des particuliers, des professionnels, ou les deux.</li>
+              <li>Adhérent de la FFPMI ou non.</li>
+              <li>Sans ancienneté minimale : l'expérience rapporte des points, elle n'est pas exigée.</li>
+            </ul>
+          </div>
+          <div className="carte pile">
+            <h3 style={{ color: 'var(--accent)', margin: 0 }}>Toutes les spécialités</h3>
+            <div>{referentiel.specialites.map((s) => <span key={s.value} className="puce-spe">{s.label}</span>)}</div>
+            <p className="petit discret" style={{ margin: 0 }}>Le candidat indique jusqu'à 4 spécialités principales : les experts qui étudient son dossier sont choisis en fonction d'elles.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="texte-long" id="conditions">
+        <h2 className="equerre">Les {elim.length} conditions obligatoires</h2>
+        <p>Elles viennent de la loi et des fondamentaux du métier. Toutes doivent être remplies, justificatifs à l'appui.</p>
+        <ol className="pile" style={{ gap: '.35rem' }}>{elim.map((q) => <li key={q.code}>{q.libelle}</li>)}</ol>
         <p>
           Les autres critères rapportent des points : formation, qualité des galeries, relation client, sécurité des fichiers, accueil, transmission.
-          La Charte est accordée à partir de {referentiel.version.seuil_obtention} points sur {referentiel.version.base_score}, calculés sur les seules questions qui vous concernent.
+          La Charte est accordée à partir de {referentiel.version.seuil_obtention} points sur {referentiel.version.base_score}, calculés sur les seules questions qui concernent le candidat.
         </p>
-        <p><Link to="/preparer">Préparer sa candidature, rubrique par rubrique →</Link></p>
+        <h2 className="equerre">Ce qu'elle n'est pas</h2>
+        <p>
+          Ni un concours, ni un titre artistique. La Charte atteste un ensemble : le respect de la loi, la qualité de la relation client,
+          la compétence et la constance du travail.
+        </p>
+        <h2 className="equerre">Qui la délivre</h2>
+        <p>
+          La Fédération Française de la Photographie et des Métiers de l'Image (FFPMI) a créé la Charte et en confie la gestion à son organisme
+          MDI - Métiers de l'Image. Les décisions sont prises par une commission d'experts de la profession, réunie tous les deux mois.
+          La Charte est valable 2 ans.
+        </p>
+        <p><Link to="/preparer">Bien préparer sa candidature →</Link></p>
       </section>
     </Site>
   );
