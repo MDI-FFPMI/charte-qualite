@@ -29,6 +29,7 @@ export default function Accueil() {
             <BoutonDeposer className="bouton deposer hero-btn">Je dépose ma candidature</BoutonDeposer>
             <Link to="/la-charte" className="bouton hero-btn hero-btn-contour">En savoir plus</Link>
           </div>
+          <p className="hero-prix">199 € pour 2 ans · 149 € pour les adhérents FFPMI</p>
         </div>
         <PhotoForme src={photo} />
       </section>

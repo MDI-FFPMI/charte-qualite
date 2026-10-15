@@ -117,7 +117,7 @@ export default function Site({ titre, chapo, children, documents, appel = true, 
     <>
       <EnTeteSite />
       <main className="gouttiere site-main">
-        <div className="conteneur pile" style={{ gap: '2.5rem', maxWidth: large ? undefined : 980 }}>
+        <div className="conteneur pile" style={{ gap: '2.5rem' }}>
           {titre && (
             <header className="site-titre">
               <h1 className="equerre">{titre}</h1>
