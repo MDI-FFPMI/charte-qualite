@@ -5,7 +5,7 @@ import logo from '../../assets/logo-ppf.png';
 import logoFfpmi from '../../assets/logo-ffpmi.png';
 import logoMdi from '../../assets/logo-mdi.png';
 import { BarreDemo } from '../EnTete';
-import { estDemo, lienPaiement } from '../../lib/api';
+import { estDemo } from '../../lib/api';
 import { accueilDuRole, useSession } from '../../App';
 
 export const MENU = [
@@ -16,10 +16,10 @@ export const MENU = [
   { to: '/questions', label: 'Questions fréquentes', court: 'Questions' },
 ];
 
-/** Bouton principal : paiement en ligne s'il est configuré, sinon inscription directe */
+/** Bouton principal : création du compte (ou espace si déjà connecté). Le paiement se fait ensuite depuis l'espace candidat. */
 export function BoutonDeposer({ className = 'bouton deposer', children = 'Je dépose mon dossier' }: { className?: string; children?: ReactNode }) {
-  if (lienPaiement) return <a className={className} href={lienPaiement}>{children}</a>;
-  return <Link className={className} to="/connexion?espace=inscription">{children}</Link>;
+  const { utilisateur } = useSession();
+  return <Link className={className} to={utilisateur?.role === 'candidat' ? '/candidat' : '/connexion?espace=inscription'}>{children}</Link>;
 }
 
 function EnTeteSite() {

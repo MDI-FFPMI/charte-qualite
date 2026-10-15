@@ -260,3 +260,14 @@ export const estDemo = import.meta.env.VITE_DEMO === '1' || !url || !cle;
 export const sb: SupabaseClient | null = estDemo ? null : createClient(url!, cle!);
 export const api: Api = sb ? apiSupabase(sb) : apiDemo();
 export const lienPaiement = (import.meta.env.VITE_STRIPE_PAYMENT_LINK as string | undefined) ?? '';
+
+/** Lien de paiement Stripe rattaché au compte : l'email est prérempli et l'identifiant du compte
+ *  revient dans la confirmation de paiement, ce qui permet d'ouvrir le bon dossier sans erreur possible. */
+export function lienPaiementPour(u: { id: string; email: string }): string {
+  if (!lienPaiement) return '';
+  const url = new URL(lienPaiement);
+  url.searchParams.set('client_reference_id', u.id);
+  url.searchParams.set('prefilled_email', u.email);
+  url.searchParams.set('locale', 'fr');
+  return url.toString();
+}

@@ -152,9 +152,10 @@ export interface Bilan {
   questionsSansReponse: Question[];
   eliminatoiresEchouees: Question[];
   justificatifsManquants: Question[];
-  /** total et repondues : questions que le candidat remplit lui-même (réponses réellement saisies) ;
+  /** total et repondues : questions que le candidat remplit lui-même, complètes (justificatif compris) ;
+   *  saisies : questions commencées, même sans leur justificatif ; points : points possibles de la rubrique ;
    *  requises et requisesFaites : celles qui conditionnent l'envoi */
-  progression: { numero: number; total: number; repondues: number; requises: number; requisesFaites: number }[];
+  progression: { numero: number; total: number; repondues: number; saisies: number; requises: number; requisesFaites: number; points: number }[];
   envoyable: boolean;
 }
 
@@ -179,27 +180,47 @@ export function bilanDossier(ref: Referentiel, reponses: Reponses, pieces: Piece
   const eliminatoires: Question[] = [];
   const manquants: Question[] = [];
   const progression = ref.rubriques.map((rub) => {
-    let total = 0, repondues = 0, requises = 0, requisesFaites = 0;
+    let total = 0, repondues = 0, saisies = 0, requises = 0, requisesFaites = 0, points = 0;
+    // Une question d'évaluation (calculée) est considérée comme vue dès que le candidat a commencé la rubrique
+    const rubriqueEntamee = rub.questions.some((x) => x.type !== 'evaluation' && aUneSaisie(x, reponses[x.code]));
     for (const q of rub.questions) {
-      if (!estAffichee(q, reponses, ref)) continue;
+      if (!estAffichee(q, reponses, ref)) {
+        // Question conditionnelle masquée : elle compte dans le total de la rubrique,
+        // et devient « non concernée » (donc complète) dès que la question dont elle dépend a une réponse.
+        const parent = toutesQuestions(ref).find((x) => x.code === q.condition?.q);
+        const tranchee = !!parent && estAffichee(parent, reponses, ref) && estRepondue(parent, reponses[parent.code]);
+        total++;
+        if (tranchee) { saisies++; repondues++; }
+        if (estObligatoire(q)) { requises++; if (tranchee) requisesFaites++; }
+        continue;
+      }
+      if (q.type === 'evaluation') {
+        total++; points += q.points_max; applicables += q.points_max;
+        if (q.note_par_experts) experts += q.points_max;
+        if (rubriqueEntamee) { saisies++; repondues++; }
+        continue;
+      }
       const r = reponses[q.code];
       const repondue = estRepondue(q, r);
-      if (q.type !== 'evaluation') {
-        total++;
-        if (aUneSaisie(q, r)) repondues++;
-      }
+      // Une réponse qui appelle un justificatif n'est complète qu'avec ce justificatif
+      const manque = justificatifManquant(q, r, pieces);
+      total++;
+      if (aUneSaisie(q, r)) saisies++;
+      if (aUneSaisie(q, r) && !manque) repondues++;
       if (estObligatoire(q)) {
         requises++;
-        if (repondue) requisesFaites++;
-        else sansReponse.push(q);
+        if (repondue && !manque) requisesFaites++;
+        if (!repondue) sansReponse.push(q);
       }
       applicables += q.points_max;
+      points += q.points_max;
       if (q.note_par_experts) experts += q.points_max;
-      obtenus += pointsQuestion(q, r);
+      // Les points d'une réponse non justifiée ne sont pas comptés
+      if (!manque) obtenus += pointsQuestion(q, r);
       if (q.statut === 'eliminatoire' && repondue && !estPositive(q, r)) eliminatoires.push(q);
-      if (justificatifManquant(q, r, pieces)) manquants.push(q);
+      if (manque) manquants.push(q);
     }
-    return { numero: rub.numero, total, repondues, requises, requisesFaites };
+    return { numero: rub.numero, total, repondues, saisies, requises, requisesFaites, points };
   });
   const eliminatoireManquantes = manquants.filter((q) => q.statut === 'eliminatoire');
   return {

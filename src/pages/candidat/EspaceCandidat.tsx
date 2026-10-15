@@ -6,8 +6,9 @@ import refJson from '../../data/referentiel-v3.json';
 import EncadreCharte from '../../components/EncadreCharte';
 import MaFiche from './MaFiche';
 import { CHARTE_VERSION } from '../../data/charte-deontologie';
-import { api, type Dossier } from '../../lib/api';
-import { bilanDossier, estAffichee, valeursChoisies } from '../../lib/scoring';
+import { api, lienPaiementPour, type Dossier } from '../../lib/api';
+import { useSession } from '../../App';
+import { bilanDossier, estAffichee, estRepondue, valeursChoisies } from '../../lib/scoring';
 import type { Piece, Referentiel, Reponse, Reponses } from '../../lib/types';
 
 const ref = refJson as Referentiel;
@@ -26,6 +27,52 @@ const libelleStatut: Record<Dossier['statut'], string> = {
   retire: 'Charte retirée',
 };
 
+/** Pas encore de dossier : paiement de la candidature, puis ouverture automatique du dossier */
+function PagePaiement({ recharger }: { recharger: () => Promise<boolean> }) {
+  const { utilisateur } = useSession();
+  const retour = typeof location !== 'undefined' && new URLSearchParams(location.search).get('paiement') === 'ok';
+  const [attente, setAttente] = useState(retour);
+  useEffect(() => {
+    if (!attente) return;
+    let essais = 0;
+    const t = setInterval(async () => {
+      essais++;
+      if (await recharger() || essais >= 20) { clearInterval(t); setAttente(false); }
+    }, 3000);
+    return () => clearInterval(t);
+  }, [attente, recharger]);
+  const lien = utilisateur ? lienPaiementPour(utilisateur) : '';
+
+  if (attente) return (
+    <div className="carte pile" style={{ maxWidth: 640 }}>
+      <h1 className="equerre">Merci, paiement reçu</h1>
+      <p role="status">Votre dossier s'ouvre, cela prend quelques secondes…</p>
+    </div>
+  );
+  return (
+    <div className="pile" style={{ gap: '1.5rem', maxWidth: 720 }}>
+      <div className="pile" style={{ gap: '.4rem' }}>
+        <h1 className="equerre">Ouvrir mon dossier de candidature</h1>
+        <p className="discret">Votre compte est créé. Il reste à régler la candidature : votre dossier s'ouvre dès le paiement validé, et vous le remplissez à votre rythme.</p>
+      </div>
+      {retour && <div className="message att">Le paiement n'est pas encore confirmé. Patientez une minute puis rechargez la page. Si rien ne change, écrivez à <a href="mailto:charte-qualite@ffpmi.eu">charte-qualite@ffpmi.eu</a>.</div>}
+      <div className="carte pile">
+        <div className="grille-2">
+          <div className="pile" style={{ gap: '.2rem' }}><span className="grand num" style={{ fontSize: '2rem', fontWeight: 800 }}>199 €</span><span className="discret">Candidature, Charte valable 2 ans</span></div>
+          <div className="pile" style={{ gap: '.2rem' }}><span className="grand num" style={{ fontSize: '2rem', fontWeight: 800 }}>149 €</span><span className="discret">Adhérents de la FFPMI, avec le code promo réservé aux adhérents</span></div>
+        </div>
+        {lien
+          ? <a className="bouton principal" href={lien} style={{ alignSelf: 'flex-start' }}>Payer ma candidature</a>
+          : <div className="message att">Le paiement en ligne n'est pas encore ouvert. Écrivez à <a href="mailto:charte-qualite@ffpmi.eu">charte-qualite@ffpmi.eu</a>.</div>}
+        <p className="petit discret" style={{ margin: 0 }}>
+          Paiement sécurisé par Stripe, par carte bancaire. Adhérent de la FFPMI : saisissez votre code dans le champ « Ajouter un code promotionnel » de la page de paiement.
+          Utilisez de préférence l'adresse email de votre compte ({utilisateur?.email}).
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function useDossier() {
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [reponses, setReponses] = useState<Reponses>({});
@@ -42,6 +89,7 @@ function useDossier() {
       setReponses(r); setPieces(p);
     }
     setCharge(true);
+    return !!d;
   }, []);
   useEffect(() => { void recharger(); }, [recharger]);
 
@@ -86,12 +134,13 @@ function Sommaire({ e }: { e: Etat }) {
       <NavLink to="/candidat" end><span className="pastille" aria-hidden="true">≡</span><span>Tableau de bord</span><span /></NavLink>
       {ref.rubriques.map((r) => {
         const p = bilan.progression.find((x) => x.numero === r.numero)!;
-        const etat = p.repondues > 0 && p.requisesFaites === p.requises ? 'faite' : p.repondues > 0 ? 'encours' : '';
+        // Verte seulement si tout est rempli, justificatifs compris
+        const etat = p.saisies > 0 && p.requisesFaites === p.requises && p.repondues === p.saisies ? 'faite' : p.saisies > 0 ? 'encours' : '';
         return (
           <NavLink key={r.numero} to={`/candidat/rubrique/${r.numero}`}>
             <span className={`pastille ${etat}`} aria-hidden="true">{etat === 'faite' ? '✓' : r.numero === 0 ? 'i' : r.numero}</span>
             <span>{r.titre}</span>
-            <span className="petit discret num">{p.repondues}/{p.total}</span>
+            <span className="petit discret num" title={`${p.repondues} question${p.repondues > 1 ? 's' : ''} complète${p.repondues > 1 ? 's' : ''} (justificatif compris) sur ${p.total}`}>{p.repondues}/{p.total}</span>
           </NavLink>
         );
       })}
@@ -165,11 +214,35 @@ function TableauDeBord({ e }: { e: Etat }) {
           <h2 style={{ fontSize: '1.05rem' }}>À reprendre</h2>
           <ul className="pile" style={{ gap: '.4rem', margin: 0, paddingLeft: '1.1rem' }}>
             {bilan.eliminatoiresEchouees.map((q) => <li key={q.code}><span className="badge elim">Condition obligatoire</span> {q.code} {q.libelle}</li>)}
-            {bilan.justificatifsManquants.map((q) => <li key={q.code}>Justificatif manquant : {q.code} {q.libelle}</li>)}
+            {[...bilan.justificatifsManquants].sort(parOrdre).map((q) => (
+              <li key={q.code}>
+                <span className={`etiquette-blocage ${q.statut === 'eliminatoire' ? 'justificatif' : 'points'}`}>{q.statut === 'eliminatoire' ? 'Justificatif requis' : 'Points non comptés'}</span>
+                {' '}<Link to={`/candidat/rubrique/${q.code.split('.')[0]}`}>{q.code}</Link> {q.libelle}
+              </li>
+            ))}
           </ul>
         </div>
       )}
     </div>
+  );
+}
+
+/** Question qui dépend d'une autre réponse : rappelée à sa place pour que la numérotation reste lisible */
+function QuestionMasquee({ q, reponses }: { q: Referentiel['rubriques'][number]['questions'][number]; reponses: Reponses }) {
+  const parent = q.condition?.q ?? '';
+  const tranchee = estRepondue(ref.rubriques.flatMap((r) => r.questions).find((x) => x.code === parent)!, reponses[parent]);
+  return (
+    <article className="question question-masquee" aria-label={`Question ${q.code}`}>
+      <div className="ligne" style={{ justifyContent: 'space-between' }}>
+        <span><span className="num discret">{q.code}</span> {q.libelle}</span>
+        <span className={`badge ${tranchee ? 'ok' : 'info'}`}>{tranchee ? 'Non concerné' : 'Selon votre réponse'}</span>
+      </div>
+      <p className="petit discret" style={{ margin: '.3rem 0 0' }}>
+        {tranchee
+          ? `D'après votre réponse à la question ${parent}, cette question ne vous concerne pas. Elle est comptée comme complète.`
+          : `Cette question s'affichera ou non selon votre réponse à la question ${parent}.`}
+      </p>
+    </article>
   );
 }
 
@@ -189,9 +262,23 @@ function PageRubrique({ e }: { e: Etat }) {
         <p className="petit discret num">{rub.numero === 0 ? 'Avant de commencer' : `Rubrique ${rub.numero} sur ${ref.rubriques.filter((r) => r.numero > 0).length}`}</p>
         <h1 className="equerre">{rub.titre}</h1>
         {rub.intro && <p className="discret">{rub.intro}</p>}
+        {(() => {
+          const p = bilanDossier(ref, e.reponses, e.pieces, false).progression.find((x) => x.numero === rub.numero)!;
+          const sansImpact = rub.questions.filter((q) => q.statut === 'informatif').length;
+          return p.total > 0 && (
+            <p className="petit discret num" style={{ margin: 0 }}>
+              {p.total} question{p.total > 1 ? 's' : ''}{sansImpact ? `, dont ${sansImpact} sans impact sur le score` : ''}
+              {p.points > 0 && ` · ${p.points} point${p.points > 1 ? 's' : ''} possibles`}
+              {' · '}{p.repondues} complète{p.repondues > 1 ? 's' : ''} sur {p.total}
+              {p.saisies > p.repondues && <span style={{ color: 'var(--critique)' }}> · {p.saisies - p.repondues} justificatif{p.saisies - p.repondues > 1 ? 's' : ''} à déposer</span>}
+            </p>
+          );
+        })()}
         <div className="ligne"><EtatSauvegarde s={e.sauvegarde} /></div>
       </div>
-      {visibles.map((q) => (
+      {rub.questions.map((q) => !visibles.includes(q) ? (
+        <QuestionMasquee key={q.code} q={q} reponses={e.reponses} />
+      ) : (
         <QuestionChamp key={q.code} q={q} referentiel={ref} reponse={e.reponses[q.code]} toutesReponses={e.reponses} specialitesChoisies={specialites}
           pieces={e.pieces} verrouille={!modifiable(d, q.code)}
           onChange={(r) => e.repondre(q.code, r)} onDepot={(f) => e.deposer(q.code, f)} onRetirer={e.retirer} />
@@ -208,6 +295,10 @@ function PageRubrique({ e }: { e: Etat }) {
   );
 }
 
+const ORDRE = new Map(ref.rubriques.flatMap((r) => r.questions).map((q, i) => [q.code, i]));
+const parOrdre = (a: { code: string }, b: { code: string }) => (ORDRE.get(a.code) ?? 0) - (ORDRE.get(b.code) ?? 0);
+const ETIQUETTES = { condition: 'Condition non remplie', justificatif: 'Justificatif requis', reponse: 'Sans réponse' };
+
 function PageEnvoi({ e }: { e: Etat }) {
   const [coches, setCoches] = useState<boolean[]>(ref.attestation.map(() => false));
   const [phrase, setPhrase] = useState('');
@@ -218,7 +309,12 @@ function PageEnvoi({ e }: { e: Etat }) {
   const tout = coches.every(Boolean) && charteOk;
   const bilan = useMemo(() => bilanDossier(ref, e.reponses, e.pieces, tout), [e.reponses, e.pieces, tout]);
   const elimManquants = bilan.justificatifsManquants.filter((q) => q.statut === 'eliminatoire');
-  const valoManquants = bilan.justificatifsManquants.filter((q) => q.statut !== 'eliminatoire');
+  const valoManquants = bilan.justificatifsManquants.filter((q) => q.statut !== 'eliminatoire').sort(parOrdre);
+  const bloquants = [
+    ...bilan.eliminatoiresEchouees.map((q) => ({ q, type: 'condition' as const })),
+    ...elimManquants.map((q) => ({ q, type: 'justificatif' as const })),
+    ...bilan.questionsSansReponse.map((q) => ({ q, type: 'reponse' as const })),
+  ].sort((a, b) => parOrdre(a.q, b.q));
   const lien = (code: string) => `/candidat/rubrique/${code.split('.')[0]}`;
   const vous = (e.reponses['0.1']?.valeur ?? {}) as Record<string, string>;
   const ent = (e.reponses['0.2']?.valeur ?? {}) as Record<string, string>;
@@ -251,22 +347,41 @@ function PageEnvoi({ e }: { e: Etat }) {
 
       <div className="carte pile">
         <h2 style={{ fontSize: '1.05rem' }}>Ce qui bloque l'envoi</h2>
-        {bilan.questionsSansReponse.length + bilan.eliminatoiresEchouees.length + elimManquants.length === 0
-          ? <p className="message ok">Toutes les questions requises sont remplies et les conditions obligatoires sont validées.</p>
+        {bloquants.length === 0
+          ? <p className="message ok">Toutes les questions requises sont remplies et les conditions obligatoires sont validées, justificatifs compris.</p>
           : (
-            <ul className="pile" style={{ gap: '.4rem', margin: 0, paddingLeft: '1.1rem' }}>
-              {bilan.eliminatoiresEchouees.map((q) => <li key={`e${q.code}`}><Link to={lien(q.code)}>{q.code}</Link> Condition obligatoire non remplie : {q.libelle}</li>)}
-              {elimManquants.map((q) => <li key={`j${q.code}`}><Link to={lien(q.code)}>{q.code}</Link> Justificatif requis : {q.libelle}</li>)}
-              {bilan.questionsSansReponse.map((q) => <li key={`s${q.code}`}><Link to={lien(q.code)}>{q.code}</Link> Sans réponse : {q.libelle}</li>)}
-            </ul>
+            <>
+              <p className="petit discret" style={{ margin: 0 }}>Dans l'ordre du dossier. Cliquez sur un numéro pour y aller.</p>
+              <ul className="liste-blocages">
+                {bloquants.map(({ q, type }) => (
+                  <li key={`${type}${q.code}`}>
+                    <Link to={lien(q.code)} className="num">{q.code}</Link>
+                    <span className={`etiquette-blocage ${type}`}>{ETIQUETTES[type]}</span>
+                    <span>{q.libelle}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
-        {valoManquants.length > 0 && (
-          <div className="message att">
-            {valoManquants.length} justificatif{valoManquants.length > 1 ? 's' : ''} manquant{valoManquants.length > 1 ? 's' : ''} sur des critères à points
-            ({valoManquants.map((q) => q.code).join(', ')}). L'envoi reste possible, mais la commission pourra ne pas accorder ces points.
-          </div>
-        )}
       </div>
+
+      {valoManquants.length > 0 && (
+        <div className="carte pile">
+          <h2 style={{ fontSize: '1.05rem' }}>Justificatifs manquants sur des critères à points</h2>
+          <p className="petit discret" style={{ margin: 0 }}>
+            L'envoi reste possible, mais sans justificatif les points de ces questions ne sont pas comptés.
+          </p>
+          <ul className="liste-blocages">
+            {valoManquants.map((q) => (
+              <li key={q.code}>
+                <Link to={lien(q.code)} className="num">{q.code}</Link>
+                <span className="etiquette-blocage points">Points non comptés</span>
+                <span>{q.libelle}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="carte pile">
         <h2 style={{ fontSize: '1.05rem' }}>Attestation sur l'honneur</h2>
@@ -302,9 +417,7 @@ export default function EspaceCandidat() {
       <main className="gouttiere">
         <div className="conteneur">
           {!e.charge && <p className="discret">Chargement du dossier…</p>}
-          {e.charge && !e.dossier && (
-            <div className="message att">Aucun dossier n'est associé à votre compte. Si vous venez de payer, le dossier apparaît en quelques minutes.</div>
-          )}
+          {e.charge && !e.dossier && <PagePaiement recharger={e.recharger} />}
           {e.dossier && (
             <div className="candidat-grille">
               <Sommaire e={e} />

@@ -18,7 +18,12 @@ interface Props {
 const taille = (o: number) => (o > 1e6 ? `${(o / 1e6).toFixed(1)} Mo` : `${Math.max(1, Math.round(o / 1e3))} Ko`);
 
 export function BadgeStatut({ q }: { q: Question }) {
-  if (q.statut === 'eliminatoire') return <span className="badge elim" title="Une réponse négative ne permet pas d'envoyer le dossier">Condition obligatoire</span>;
+  if (q.statut === 'eliminatoire') return (
+    <span className="ligne" style={{ gap: '.35rem', flexWrap: 'nowrap' }}>
+      <span className="badge elim" title="Une réponse négative ne permet pas d'envoyer le dossier">Condition obligatoire</span>
+      {q.points_max > 0 && <span className="badge pts num">{q.points_max} pt{q.points_max > 1 ? 's' : ''}</span>}
+    </span>
+  );
   if (q.statut === 'informatif') return <span className="badge info">Sans impact sur le score</span>;
   if (q.note_par_experts) return <span className="badge pts">{q.points_max} pts, notés par la commission</span>;
   return <span className="badge pts num">{q.points_max} pt{q.points_max > 1 ? 's' : ''}</span>;
@@ -333,7 +338,7 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
             <input value={r.justification ?? ''} disabled={verrouille} onChange={(e) => maj({ justification: e.target.value })} />
           </label>
           {manque && <span className="petit" style={{ color: q.statut === 'eliminatoire' ? 'var(--critique)' : 'var(--attention)' }}>
-            {q.statut === 'eliminatoire' ? 'Justificatif nécessaire pour envoyer le dossier.' : 'Sans justificatif, la commission pourra ne pas accorder ces points.'}
+            {q.statut === 'eliminatoire' ? 'Justificatif nécessaire pour envoyer le dossier.' : 'Sans justificatif, les points de cette question ne sont pas comptés.'}
           </span>}
         </div>
       )}

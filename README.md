@@ -25,12 +25,12 @@ Plateforme de candidature et d'évaluation de la Charte Qualité FFPMI, gérée 
    Exécuter dans l'ordre `supabase/migrations/0001_schema.sql` puis `0002_referentiel_v3.sql` (éditeur SQL ou `supabase db push`).
 2. **Authentification** : activer la connexion par email (lien magique), désactiver les inscriptions libres, traduire en français
    les modèles "Invite user" et "Magic link", et définir l'expéditeur `charte-qualite@ffpmi.eu` (SMTP personnalisé).
-3. **Stripe** :
-   - créer un produit "Candidature Charte Qualité" à 199 € et un lien de paiement ;
-   - créer un code promo réservé aux adhérents ramenant le prix à 149 € ;
-   - déployer la fonction : `supabase functions deploy stripe-webhook --no-verify-jwt` ;
-   - secrets : `supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... SITE_URL=https://charte.ffpmi.eu` ;
-   - dans Stripe, ajouter un endpoint webhook vers `https://<projet>.supabase.co/functions/v1/stripe-webhook`, événement `checkout.session.completed`.
+3. **Stripe** (le candidat crée son compte, puis paie depuis son espace ; le dossier s'ouvre automatiquement) :
+   - produit "Candidature Charte Qualité" à 199 €, lien de paiement avec codes promotionnels autorisés et redirection vers `SITE_URL/candidat?paiement=ok` ;
+   - code promo réservé aux adhérents ramenant le prix à 149 € ;
+   - fonction `stripe-webhook` (Edge Functions, vérification JWT désactivée), secrets STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SITE_URL ;
+   - webhook Stripe vers `https://<projet>.supabase.co/functions/v1/stripe-webhook`, événement `checkout.session.completed` ;
+   - variable Vercel VITE_STRIPE_PAYMENT_LINK, puis fermer l'inscription libre : `update parametres set valeur = 'false' where cle = 'inscription_libre';`
 4. **Application** : copier `.env.example` en `.env`, renseigner les valeurs, puis `npm install` et `npm run dev`.
 5. **Mise en ligne** : relier le dépôt GitHub (privé) à Vercel ou Netlify, avec les mêmes variables, sur `charte.ffpmi.eu`.
 6. **Premier compte administrateur** : après votre première connexion, dans l'éditeur SQL :
