@@ -75,9 +75,12 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('annuaire', 'annuaire', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
 on conflict (id) do nothing;
 
-create policy "annuaire stockage: lecture publique" on storage.objects for select using (bucket_id = 'annuaire');
+-- Pas de règle de lecture : les photos s'affichent par leur adresse publique (bucket public),
+-- mais personne ne peut lister le contenu du dossier, donc pas de photo visible avant publication de la fiche.
 create policy "annuaire stockage: le photographe dépose sa photo" on storage.objects for insert
   with check (bucket_id = 'annuaire' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "annuaire stockage: le photographe voit ses photos" on storage.objects for select
+  using (bucket_id = 'annuaire' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "annuaire stockage: le photographe remplace sa photo" on storage.objects for update
   using (bucket_id = 'annuaire' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "annuaire stockage: le photographe supprime sa photo" on storage.objects for delete

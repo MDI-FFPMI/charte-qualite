@@ -2,7 +2,11 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { marked } from 'marked';
-import Site, { BoutonDeposer, PDF_CHARTE, PDF_GUIDE } from '../../components/site/Site';
+import Site, { BoutonDeposer, EncartDonnees, PDF_CHARTE, PDF_GUIDE, PhotoForme } from '../../components/site/Site';
+import photoFamille from '../../assets/cible-famille.jpg';
+import photoAppareil from '../../assets/cible-appareil.jpg';
+import photoCouple from '../../assets/cible-couple.jpg';
+import photoEntreprise from '../../assets/cible-entreprise.jpg';
 import { TexteCharte } from '../../components/EncadreCharte';
 import { charte } from '../../data/charte-deontologie';
 import guideMd from '../../../docs/guide-preparation.md?raw';
@@ -15,31 +19,51 @@ const referentiel = ref as Referentiel;
 export function LaCharte() {
   const elim = referentiel.rubriques.flatMap((r) => r.questions).filter((q) => q.statut === 'eliminatoire');
   return (
-    <Site titre="La Charte Qualité" documents={[PDF_GUIDE, PDF_CHARTE]}
-      chapo="Elle distingue les photographes qui exercent leur métier dans le respect des bonnes pratiques professionnelles : déclarés, assurés, compétents et engagés envers leurs clients.">
-      <section className="pile" id="a-quoi-ca-sert">
-        <h2 className="equerre">À quoi elle sert</h2>
-        <div className="deux-colonnes">
-          <div className="carte pile">
-            <h3 style={{ color: 'var(--accent)', margin: 0 }}>Pour le photographe</h3>
-            <ul className="liste-nette">
-              <li><strong>Se distinguer</strong> avec une reconnaissance délivrée par la fédération de la profession.</li>
-              <li><strong>Rassurer ses clients</strong> : en règle, assuré, contrat clair, images et données protégées.</li>
-              <li><strong>Progresser</strong> : le dossier passe en revue toute l'entreprise, chaque critère manqué est une piste concrète.</li>
-              <li><strong>Être trouvé</strong> grâce à sa fiche sur la carte des titulaires.</li>
-              <li><strong>Avoir un regard d'experts</strong> sur ses galeries, par des professionnels de sa spécialité.</li>
-            </ul>
-          </div>
-          <div className="carte pile">
-            <h3 style={{ color: 'var(--accent)', margin: 0 }}>Pour ses clients</h3>
-            <ul className="liste-nette">
-              <li><strong>Un professionnel déclaré</strong>, à jour de ses cotisations et assuré.</li>
-              <li><strong>Des engagements écrits</strong> : prix connus avant la séance, contrat, délai de livraison, droits sur les images.</li>
-              <li><strong>Des personnes protégées</strong>, en particulier les nouveau-nés et les enfants.</li>
-              <li><strong>Un recours</strong> en cas de litige : médiateur de la consommation, signalement à la FFPMI.</li>
-            </ul>
-          </div>
+    <Site documents={[PDF_GUIDE, PDF_CHARTE]}>
+      <section className="hero hero-page">
+        <div className="hero-texte">
+          <h1>À qui s'adresse la Charte Qualité ?</h1>
+          <p>Pensée pour les photographes professionnels, elle est aussi un repère pour les particuliers, les entreprises et les institutions à la recherche d'un photographe.</p>
         </div>
+        <PhotoForme src={photoFamille} />
+      </section>
+
+      <section className="cibles" id="a-quoi-ca-sert">
+        <article className="cible">
+          <PhotoForme src={photoAppareil} />
+          <div className="cible-texte">
+            <span className="cible-pour">Photographes</span>
+            <h2>Vous êtes photographe professionnel ?</h2>
+            <p>Vous exercez depuis des années. Vous avez investi dans votre formation, votre matériel, votre relation client. Vous faites les choses bien, mais personne ne le voit vraiment, ou pas assez.</p>
+            <p>La Charte Qualité est faite pour vous. Elle ne vous apprend rien : elle dit à vos clients ce que vous savez déjà. Mariage, nouveau-né, portrait, immobilier, mode, événementiel, reportage ou photographie d'auteur : elle s'adapte à votre pratique.</p>
+            <ul className="liste-nette">
+              <li>Une reconnaissance délivrée par la fédération de la profession</li>
+              <li>Un regard d'experts de votre spécialité sur votre travail</li>
+              <li>Votre fiche sur la carte des titulaires</li>
+            </ul>
+            <div className="ligne"><BoutonDeposer className="bouton deposer" /><Link to="/preparer" className="bouton secondaire">Bien se préparer</Link></div>
+          </div>
+        </article>
+        <article className="cible inverse">
+          <PhotoForme src={photoCouple} credit="Dorothée Machabert" inverse />
+          <div className="cible-texte">
+            <span className="cible-pour">Particuliers</span>
+            <h2>Vous cherchez un photographe ?</h2>
+            <p>Choisir un photographe n'est pas simple. Les sites sont beaux, les tarifs varient du simple au quintuple, et rien ne vous dit si le professionnel en face de vous est vraiment compétent, assuré et respectueux de ses engagements.</p>
+            <p>Le logo Photographe Professionnel de France change cela : ce photographe a été évalué sur des critères objectifs, ses documents contractuels, ses assurances, son portfolio, ses pratiques de sauvegarde. Et si un problème survient, la FFPMI est là comme instance de recours.</p>
+            <div className="ligne"><Link to="/carte" className="bouton deposer">La carte de France des photographes</Link></div>
+          </div>
+        </article>
+        <article className="cible">
+          <PhotoForme src={photoEntreprise} credit="Dorothée Machabert" />
+          <div className="cible-texte">
+            <span className="cible-pour">Entreprises et institutions</span>
+            <h2>Vous commandez des prestations photo ?</h2>
+            <p>Événements, portraits corporate, reportages, photographies de produits : travailler avec un photographe titulaire de la Charte, c'est sécuriser votre relation commerciale et valoriser votre propre démarche qualité.</p>
+            <p>Contrat écrit, droits d'utilisation précisés, devis et factures conformes, assurance professionnelle : les bases sont vérifiées avant même votre premier échange.</p>
+            <div className="ligne"><Link to="/carte" className="bouton principal">Trouver un photographe</Link><Link to="/deontologie" className="bouton secondaire">Ses engagements</Link></div>
+          </div>
+        </article>
       </section>
 
       <section className="pile" id="pour-qui">
@@ -84,6 +108,7 @@ export function LaCharte() {
         </p>
         <p><Link to="/preparer">Bien préparer sa candidature →</Link></p>
       </section>
+      <EncartDonnees />
     </Site>
   );
 }
@@ -98,7 +123,7 @@ export function Preparer() {
     rendu.heading = ({ tokens, depth }) => {
       const texte = tokens.map((t) => ('text' in t ? t.text : '')).join('');
       const id = ancre(texte);
-      titres.push({ niveau: depth, texte, id });
+      titres.push({ niveau: depth, texte: texte.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&'), id });
       return `<h${depth} id="${id}">${texte}</h${depth}>`;
     };
     rendu.paragraph = function (token) {
@@ -110,9 +135,18 @@ export function Preparer() {
       const lignes = token.rows.map((r) => `<tr>${r.map((c) => `<td>${this.parser.parseInline(c.tokens)}</td>`).join('')}</tr>`).join('');
       return `<div class="guide-tableau"><table><thead><tr>${tete}</tr></thead><tbody>${lignes}</tbody></table></div>`;
     };
-    const html = (marked.parse(guideMd, { renderer: rendu, gfm: true, async: false }) as string)
-      .replace(/<input disabled="" type="checkbox">/g, '<input type="checkbox">')
+    let html = (marked.parse(guideMd, { renderer: rendu, gfm: true, async: false }) as string)
       .replace(/<input (checked="" )?disabled="" type="checkbox">/g, '<input type="checkbox">');
+    // Volets colorés : étiquette + contenu qui suit
+    const classe = (t: string) => (/questions/i.test(t) ? 'q' : /commission|indispensable/i.test(t) ? 'c' : /progresser|gagner/i.test(t) ? 'p' : 'n');
+    html = html.replace(/<p class="volet">(.*?)<\/p>\s*(<(ul|p|div)[^>]*>[\s\S]*?<\/\3>)/g,
+      (_m, etiquette: string, contenu: string) => `<div class="guide-volet ${classe(etiquette)}"><p class="volet">${etiquette}</p>${contenu}</div>`);
+    // Une carte par rubrique
+    html = html.replace(/(<h3 id="[^"]*">[\s\S]*?)(?=<h3 |<h2 |$)/g, '<div class="guide-rubrique">$1</div>');
+    // Une section par partie, numérotée
+    let n = 0;
+    html = html.replace(/(<h2 id="[^"]*">)([\s\S]*?)(?=<h2 |$)/g, (_m, h2: string, reste: string) =>
+      `<section class="guide-partie">${h2.replace('>', `><span class="guide-partie-num">${++n}</span>`)}${reste}</section>`);
     return { html, titres };
   }, []);
 
@@ -126,7 +160,10 @@ export function Preparer() {
               onClick={(e) => { e.preventDefault(); document.getElementById(t.id)?.scrollIntoView({ behavior: 'smooth' }); }}>{t.texte}</a>
           ))}
         </nav>
-        <article className="guide-contenu texte-long" style={{ maxWidth: 'none' }} dangerouslySetInnerHTML={{ __html: html }} />
+        <div className="pile" style={{ gap: '2rem', minWidth: 0 }}>
+          <article className="guide-contenu" dangerouslySetInnerHTML={{ __html: html }} />
+          <EncartDonnees />
+        </div>
       </div>
     </Site>
   );
@@ -175,6 +212,7 @@ export function Questions() {
         {FAQ.map(([q, r]) => <details key={q}><summary>{q}</summary><p>{r}</p></details>)}
       </section>
       <p>Une autre question ? Écrivez à <a href="mailto:charte-qualite@ffpmi.eu">charte-qualite@ffpmi.eu</a>.</p>
+      <EncartDonnees />
       <div className="ligne"><BoutonDeposer className="bouton deposer" /></div>
     </Site>
   );

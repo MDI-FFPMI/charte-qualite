@@ -79,6 +79,7 @@ function PiedSite({ documents }: { documents?: { href: string; label: string }[]
             <Link to="/connexion">Reprendre mon dossier</Link>
             <Link to="/connexion?espace=expert">Espace expert</Link>
             <Link to="/connexion?espace=admin">Back-office</Link>
+            <Link to="/donnees-personnelles">Données personnelles</Link>
             <a href="mailto:charte-qualite@ffpmi.eu">charte-qualite@ffpmi.eu</a>
           </div>
         </div>
@@ -134,3 +135,29 @@ export default function Site({ titre, chapo, children, documents, appel = true, 
 
 export const PDF_GUIDE = { href: '/guide-preparation-charte-qualite.pdf', label: 'Guide de préparation' };
 export const PDF_CHARTE = { href: '/charte-deontologie-ffpmi.pdf', label: 'Charte de déontologie' };
+
+/** Photo dans les formes marine et rouge, comme sur l'accueil */
+export function PhotoForme({ src, alt = '', credit, inverse }: { src: string; alt?: string; credit?: string; inverse?: boolean }) {
+  return (
+    <figure className={`forme-photo${inverse ? ' inverse' : ''}`}>
+      <span className="forme marine" aria-hidden="true" />
+      <span className="forme rouge" aria-hidden="true" />
+      <img src={src} alt={alt} />
+      {credit && <figcaption>© {credit}</figcaption>}
+    </figure>
+  );
+}
+
+/** Encart « vos données sont protégées », renvoie vers la page RGPD */
+export function EncartDonnees() {
+  return (
+    <aside className="encart-donnees">
+      <span className="encart-donnees-icone" aria-hidden="true">🔒</span>
+      <div>
+        <strong>Vos données sont protégées.</strong>{' '}
+        Vos pièces ne sont visibles que des personnes habilitées, jamais par une adresse publique, et aucune n'est transmise à un service d'intelligence artificielle.{' '}
+        <Link to="/donnees-personnelles">Notre politique de protection des données →</Link>
+      </div>
+    </aside>
+  );
+}

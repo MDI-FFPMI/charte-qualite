@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
-import Site, { BoutonDeposer, PDF_CHARTE, PDF_GUIDE } from '../../components/site/Site';
+import Site, { BoutonDeposer, EncartDonnees, PDF_CHARTE, PDF_GUIDE, PhotoForme } from '../../components/site/Site';
 import photo from '../../assets/hero-photographe.jpg';
 
-const GARANTIES = [
-  ['Déclaré et assuré', 'Un photographe immatriculé, à jour de ses obligations et assuré en responsabilité civile professionnelle.'],
-  ['Engagé envers ses clients', 'Des prix annoncés, un contrat écrit, des délais tenus, des images et des données protégées.'],
-  ['Reconnu par ses pairs', 'Un dossier vérifié par deux experts de sa spécialité, puis examiné par une commission de six professionnels.'],
+const POURQUOI = [
+  ['Une reconnaissance officielle', 'La Charte Qualité permet d\'afficher un signe de reconnaissance. Elle valorise une démarche professionnelle fondée sur des engagements concrets.'],
+  ['Un regard extérieur', 'Chaque dossier est examiné par une commission indépendante, selon une grille d\'évaluation identique pour tous les candidats.'],
+  ['Une démarche volontaire', 'Aucun photographe n\'est obligé d\'y participer. La Charte s\'adresse à celles et ceux qui souhaitent faire reconnaître leur engagement professionnel.'],
+  ['Des engagements vérifiables', 'La Charte ne repose pas sur une déclaration d\'intention. Les candidats fournissent les éléments qui prouvent qu\'ils respectent les critères définis.'],
+  ['Un renouvellement régulier', 'La reconnaissance est accordée pour 2 ans. Son renouvellement permet de s\'assurer que les engagements sont toujours respectés.'],
+  ['Une profession mieux valorisée', 'En mettant en avant les photographes qui s\'engagent, la Charte renforce la confiance du public et valorise l\'image de toute la profession.'],
 ];
 
 const ETAPES = [
@@ -27,21 +30,25 @@ export default function Accueil() {
             <Link to="/la-charte" className="bouton hero-btn hero-btn-contour">En savoir plus</Link>
           </div>
         </div>
-        <div className="hero-visuel" aria-hidden="true">
-          <span className="hero-forme marine" />
-          <span className="hero-forme rouge" />
-          <img src={photo} alt="" className="hero-photo" />
-        </div>
+        <PhotoForme src={photo} />
       </section>
 
-      <section className="garanties">
-        {GARANTIES.map(([titre, texte], i) => (
-          <div key={titre} className="garantie">
-            <span className="garantie-num num">0{i + 1}</span>
-            <h2>{titre}</h2>
-            <p>{texte}</p>
-          </div>
-        ))}
+      <section className="pourquoi">
+        <div className="pourquoi-tete">
+          <h2>Pourquoi la FFPMI crée cette Charte Qualité ?</h2>
+          <p>Depuis des années, la FFPMI accompagne les photographes professionnels dans l'exercice de leur métier. Elle défend leurs intérêts, les représente et contribue à faire évoluer la profession.</p>
+        </div>
+        <div className="pourquoi-grille">
+          {POURQUOI.map(([titre, texte], i) => (
+            <div key={titre} className="pourquoi-item">
+              <span className="pourquoi-num" aria-hidden="true">0{i + 1}.</span>
+              <div>
+                <h3>{titre}</h3>
+                <p>{texte}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="double-entree">
@@ -71,6 +78,7 @@ export default function Accueil() {
           {ETAPES.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
         </ol>
       </section>
+      <EncartDonnees />
     </Site>
   );
 }

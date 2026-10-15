@@ -4,6 +4,7 @@ import { api, estDemo, type Role, type Utilisateur } from './lib/api';
 import Accueil from './pages/public/Accueil';
 import { Deontologie, LaCharte, Preparer, Questions } from './pages/public/PagesSite';
 import Annuaire, { FichePublique } from './pages/public/Annuaire';
+import Donnees from './pages/public/Donnees';
 import Connexion, { MotDePasse } from './pages/public/Connexion';
 import EspaceCandidat from './pages/candidat/EspaceCandidat';
 import EspaceExpert from './pages/expert/EspaceExpert';
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/deontologie" element={<Deontologie />} />
           <Route path="/questions" element={<Questions />} />
           <Route path="/carte" element={<Annuaire />} />
+          <Route path="/donnees-personnelles" element={<Donnees />} />
           <Route path="/photographe/:slug" element={<FichePublique />} />
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/mot-de-passe" element={<MotDePasse />} />

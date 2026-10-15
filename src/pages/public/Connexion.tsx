@@ -95,6 +95,7 @@ export default function Connexion() {
           <div className="carte pile">
             <h1 className="equerre" style={{ fontSize: '1.5rem' }}>{titre}</h1>
             {mode === 'inscription' && <p className="discret">Créez votre compte avec votre adresse email professionnelle. Vous pourrez revenir sur votre dossier à tout moment avec ce mot de passe.</p>}
+            {mode === 'inscription' && <p className="petit discret" style={{ margin: 0 }}>Vos informations servent uniquement à l'examen de votre candidature. <Link to="/donnees-personnelles">Comment nous protégeons vos données</Link>.</p>}
             {mode === 'oubli' && <p className="discret">Saisissez votre adresse : vous recevrez un lien pour choisir un nouveau mot de passe.</p>}
             {mode === 'lien' && <p className="discret">Sans mot de passe : vous recevez un lien de connexion par email.</p>}
             {!info && (mode === 'connexion' || mode === 'inscription') && (
