@@ -130,6 +130,7 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .message.erreur { background: var(--critique-doux); color: var(--critique); }
 .message.ok { background: var(--bien-doux); color: var(--bien); }
 .message.att { background: var(--attention-doux); color: var(--attention); }
+.message.info { background: var(--accent-doux); color: var(--marine); }
 
 /* ---------- Accueil public ---------- */
 .accueil-tete { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; padding-block: 1.5rem 2.5rem; }
@@ -498,3 +499,8 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 /* Colonnes étroites : alignement à gauche pour éviter les grands espaces entre les mots */
 .site-main .pourquoi-item p, .site-main .etapes-ligne li, .site-main .rgpd-finalite p, .site-main .rgpd-parcours li,
 .site-main .carte-lien p, .site-main .annuaire-carte, .site-main .tarif-discret, .site-main .liste-nette li { text-align: left; }
+
+/* Logo du studio (fiche annuaire) */
+.logo-studio-cadre { display: inline-flex; align-items: center; justify-content: center; flex: none; padding: .4rem;
+  background: #fff; border: 1px solid var(--trait); border-radius: 8px; box-sizing: border-box; }
+.logo-studio-cadre img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }

@@ -144,7 +144,12 @@ export function FichePublique() {
           <div className="pile" style={{ gap: '.5rem' }}>
             <span className="badge-charte">Titulaire de la Charte Qualité{f.fin_validite ? ` · jusqu'en ${new Date(f.fin_validite).getFullYear()}` : ''}</span>
             <h1 className="equerre">{f.nom_affiche}</h1>
-            {f.entreprise && <p className="fiche-entreprise">{f.entreprise}</p>}
+            {(f.entreprise || f.logo_url) && (
+              <div className="ligne" style={{ gap: '.75rem', alignItems: 'center' }}>
+                {f.logo_url && <span className="logo-studio-cadre" style={{ width: 120, height: 60 }}><img src={f.logo_url} alt={`Logo ${f.entreprise || f.nom_affiche}`} /></span>}
+                {f.entreprise && <p className="fiche-entreprise" style={{ margin: 0 }}>{f.entreprise}</p>}
+              </div>
+            )}
             <p className="discret" style={{ margin: 0 }}>{[f.ville, f.departement.split(' - ')[1]].filter(Boolean).join(', ')}</p>
             <div>
               {f.principales.map((s) => <span key={s} className="puce-spe ref">{libSpe(s)}</span>)}

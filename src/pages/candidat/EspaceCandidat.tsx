@@ -86,7 +86,7 @@ function Sommaire({ e }: { e: Etat }) {
       <NavLink to="/candidat" end><span className="pastille" aria-hidden="true">≡</span><span>Tableau de bord</span><span /></NavLink>
       {ref.rubriques.map((r) => {
         const p = bilan.progression.find((x) => x.numero === r.numero)!;
-        const etat = p.repondues === p.total ? 'faite' : p.repondues > 0 ? 'encours' : '';
+        const etat = p.repondues > 0 && p.requisesFaites === p.requises ? 'faite' : p.repondues > 0 ? 'encours' : '';
         return (
           <NavLink key={r.numero} to={`/candidat/rubrique/${r.numero}`}>
             <span className={`pastille ${etat}`} aria-hidden="true">{etat === 'faite' ? '✓' : r.numero === 0 ? 'i' : r.numero}</span>
@@ -104,11 +104,11 @@ function Sommaire({ e }: { e: Etat }) {
 function TableauDeBord({ e }: { e: Etat }) {
   const d = e.dossier!;
   const bilan = bilanDossier(ref, e.reponses, e.pieces, false);
-  const total = bilan.progression.reduce((s, p) => s + p.total, 0);
-  const faites = bilan.progression.reduce((s, p) => s + p.repondues, 0);
+  const total = bilan.progression.reduce((s, p) => s + p.requises, 0);
+  const faites = bilan.progression.reduce((s, p) => s + p.requisesFaites, 0);
   const prochaine = ref.rubriques.find((r) => {
     const p = bilan.progression.find((x) => x.numero === r.numero)!;
-    return p.repondues < p.total;
+    return p.requisesFaites < p.requises;
   });
   return (
     <div className="pile" style={{ gap: '1.5rem' }}>
@@ -132,7 +132,7 @@ function TableauDeBord({ e }: { e: Etat }) {
       <div className="grille-2">
         <div className="carte pile">
           <h2 style={{ fontSize: '1.05rem' }}>Progression</h2>
-          <div className="score-bloc"><span className="grand num">{Math.round((faites / total) * 100)} %</span><span className="discret num">{faites} réponses sur {total}</span></div>
+          <div className="score-bloc"><span className="grand num">{Math.round((faites / total) * 100)} %</span><span className="discret num">{faites} réponse{faites > 1 ? 's' : ''} obligatoire{faites > 1 ? 's' : ''} sur {total}</span></div>
           <div className={`jauge${faites === total ? ' complete' : ''}`}><span style={{ width: `${(faites / total) * 100}%` }} /></div>
           {d.statut === 'brouillon' && prochaine && (
             <Link className="bouton principal" to={`/candidat/rubrique/${prochaine.numero}`}>Continuer : {prochaine.titre}</Link>
@@ -145,11 +145,18 @@ function TableauDeBord({ e }: { e: Etat }) {
             <span className="grand num">{bilan.scoreIndicatif.toLocaleString('fr-FR')}</span>
             <span className="discret">sur {ref.version.base_score}</span>
           </div>
-          <p className="petit discret">
-            Hors portfolio et matériel, notés par la commission ({bilan.pointsExperts} points bruts).
-            Avec la note maximale de la commission : <span className="num">{bilan.scoreMaxAtteignable.toLocaleString('fr-FR')}</span>.
-            La Charte est accordée à partir de {ref.version.seuil_obtention}.
-          </p>
+          <div className="message info petit" style={{ margin: 0 }}>
+            <strong>Ce score est une simple aide pour vous repérer, pas un résultat.</strong> Il est calculé automatiquement à partir de vos réponses,
+            comme si elles étaient toutes justifiées.
+          </div>
+          <ul className="petit discret pile" style={{ gap: '.35rem', margin: 0, paddingLeft: '1.1rem' }}>
+            <li>Les points ne sont validés qu'après l'étude des documents que vous envoyez : leur pertinence et leur véracité sont vérifiées.
+              Une réponse sans justificatif valable peut ne pas rapporter de points.</li>
+            <li>Certains points ne sont attribués qu'après l'étude du dossier par les experts de la commission, notamment le portfolio et le matériel
+              (<span className="num">{bilan.pointsExperts}</span> points bruts). Ils ne sont pas comptés ici.</li>
+            <li>Si la commission accordait la totalité de ces points, votre score pourrait atteindre <span className="num">{bilan.scoreMaxAtteignable.toLocaleString('fr-FR')}</span>.
+              La Charte est accordée à partir de {ref.version.seuil_obtention} points, après décision de la commission.</li>
+          </ul>
         </div>
       </div>
 
@@ -276,7 +283,7 @@ function PageEnvoi({ e }: { e: Etat }) {
         signataire={[vous.prenom, vous.nom].filter(Boolean).join(' ')} entreprise={ent.denomination ?? ''} />
 
       <div className="ligne" style={{ justifyContent: 'space-between' }}>
-        <p className="discret num">Score indicatif : {bilan.scoreIndicatif.toLocaleString('fr-FR')} sur {ref.version.base_score}, hors notes de la commission</p>
+        <p className="discret num" style={{ maxWidth: '60ch' }}>Score indicatif : {bilan.scoreIndicatif.toLocaleString('fr-FR')} sur {ref.version.base_score}. Simple base de repère : les points seront validés après étude de vos justificatifs et de votre dossier par les experts de la commission.</p>
         <button className="bouton principal" disabled={!bilan.envoyable || envoi} onClick={envoyer}>
           {envoi ? 'Envoi…' : 'Envoyer mon dossier'}
         </button>

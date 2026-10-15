@@ -22,10 +22,12 @@ export interface Fiche {
   email_contact: string;
   photo_path: string | null;
   photo_url?: string | null;
+  logo_path: string | null;
+  logo_url?: string | null;
   fin_validite?: string | null;
 }
 
-export type FicheSaisie = Omit<Fiche, 'id' | 'slug' | 'photo_url' | 'fin_validite' | 'lat' | 'lng' | 'departement'>;
+export type FicheSaisie = Omit<Fiche, 'id' | 'slug' | 'photo_url' | 'logo_url' | 'fin_validite' | 'lat' | 'lng' | 'departement'>;
 
 export interface ApiAnnuaire {
   titulaires(): Promise<Fiche[]>;
@@ -33,12 +35,13 @@ export interface ApiAnnuaire {
   maFiche(): Promise<Fiche | null>;
   enregistrer(f: FicheSaisie): Promise<Fiche>;
   deposerPhoto(f: File): Promise<string>;
+  deposerLogo(f: File): Promise<string>;
 }
 
 const vide = (f: Partial<Fiche>): Fiche => ({
   id: '', slug: '', publie: false, nom_affiche: '', entreprise: '', ville: '', code_postal: '', departement: '',
   lat: null, lng: null, specialites: [], principales: [], presentation: '', site: '', instagram: '', telephone: '',
-  email_contact: '', photo_path: null, ...Object.fromEntries(Object.entries(f).filter(([, v]) => v != null)),
+  email_contact: '', photo_path: null, logo_path: null, ...Object.fromEntries(Object.entries(f).filter(([, v]) => v != null)),
 });
 
 export const slugifier = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -69,10 +72,16 @@ export async function geolocaliser(cp: string, ville: string): Promise<{ lat: nu
 // ---------------------------------------------------------------------
 function apiSupabase(): ApiAnnuaire {
   const c = sb!;
-  const avecPhoto = (f: Fiche): Fiche => ({
-    ...vide(f),
-    photo_url: f.photo_path ? c.storage.from('annuaire').getPublicUrl(f.photo_path).data.publicUrl : null,
-  });
+  const urlPublique = (chemin: string | null) => (chemin ? c.storage.from('annuaire').getPublicUrl(chemin).data.publicUrl : null);
+  const avecPhoto = (f: Fiche): Fiche => ({ ...vide(f), photo_url: urlPublique(f.photo_path), logo_url: urlPublique(f.logo_path) });
+  const deposer = async (fichier: File, nom: 'portrait' | 'logo') => {
+    const { data: u } = await c.auth.getUser();
+    const ext = fichier.type === 'image/png' ? 'png' : fichier.type === 'image/webp' ? 'webp' : 'jpg';
+    const chemin = `${u.user!.id}/${nom}-${Date.now()}.${ext}`;
+    const { error } = await c.storage.from('annuaire').upload(chemin, fichier, { contentType: fichier.type, upsert: true });
+    if (error) throw new Error(`${nom === 'logo' ? 'Logo refusé' : 'Photo refusée'} : JPG, PNG ou WebP, 5 Mo maximum.`);
+    return chemin;
+  };
   return {
     async titulaires() {
       const { data, error } = await c.from('fiches_annuaire').select('*,fin_validite')
@@ -104,14 +113,8 @@ function apiSupabase(): ApiAnnuaire {
       if (error) throw new Error(`Enregistrement impossible : ${error.message}`);
       return avecPhoto(data as Fiche);
     },
-    async deposerPhoto(fichier) {
-      const { data: u } = await c.auth.getUser();
-      const ext = fichier.type === 'image/png' ? 'png' : fichier.type === 'image/webp' ? 'webp' : 'jpg';
-      const chemin = `${u.user!.id}/portrait-${Date.now()}.${ext}`;
-      const { error } = await c.storage.from('annuaire').upload(chemin, fichier, { contentType: fichier.type, upsert: true });
-      if (error) throw new Error('Photo refusée : JPG, PNG ou WebP, 5 Mo maximum.');
-      return chemin;
-    },
+    deposerPhoto: (fichier) => deposer(fichier, 'portrait'),
+    deposerLogo: (fichier) => deposer(fichier, 'logo'),
   };
 }
 
@@ -140,10 +143,11 @@ function apiDemo(): ApiAnnuaire {
     async parSlug(slug) { return exemples.find((f) => f.slug === slug) ?? (mienne?.slug === slug ? mienne : null); },
     async maFiche() { return mienne; },
     async enregistrer(f) {
-      mienne = vide({ ...f, id: 'demo', slug: slugifier(`${f.nom_affiche} ${f.ville}`), consentement_le: f.publie ? new Date().toISOString() : null, photo_url: f.photo_path });
+      mienne = vide({ ...f, id: 'demo', slug: slugifier(`${f.nom_affiche} ${f.ville}`), consentement_le: f.publie ? new Date().toISOString() : null, photo_url: f.photo_path, logo_url: f.logo_path });
       return mienne;
     },
     async deposerPhoto(f) { return URL.createObjectURL(f); },
+    async deposerLogo(f) { return URL.createObjectURL(f); },
   };
 }
 

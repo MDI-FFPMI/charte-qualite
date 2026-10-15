@@ -152,8 +152,24 @@ export interface Bilan {
   questionsSansReponse: Question[];
   eliminatoiresEchouees: Question[];
   justificatifsManquants: Question[];
-  progression: { numero: number; total: number; repondues: number }[];
+  /** total et repondues : questions que le candidat remplit lui-même (réponses réellement saisies) ;
+   *  requises et requisesFaites : celles qui conditionnent l'envoi */
+  progression: { numero: number; total: number; repondues: number; requises: number; requisesFaites: number }[];
   envoyable: boolean;
+}
+
+/** Question à laquelle le candidat doit répondre pour envoyer */
+export function estObligatoire(q: Question): boolean {
+  if (q.facultatif || q.type === 'evaluation') return false;
+  if (q.type === 'coordonnees') return (q.champs ?? []).some((c) => c.requis);
+  return true;
+}
+
+/** Le candidat a réellement saisi quelque chose (un bloc vide ou une question calculée ne compte pas) */
+export function aUneSaisie(q: Question, r: Reponse | undefined): boolean {
+  if (q.type === 'evaluation' || r?.valeur == null) return false;
+  if (q.type === 'coordonnees') return Object.values(r.valeur as Record<string, string>).some((x) => String(x ?? '').trim());
+  return estRepondue(q, r);
 }
 
 export function bilanDossier(ref: Referentiel, reponses: Reponses, pieces: Piece[], attestationsCochees: boolean): Bilan {
@@ -163,21 +179,27 @@ export function bilanDossier(ref: Referentiel, reponses: Reponses, pieces: Piece
   const eliminatoires: Question[] = [];
   const manquants: Question[] = [];
   const progression = ref.rubriques.map((rub) => {
-    let total = 0, repondues = 0;
+    let total = 0, repondues = 0, requises = 0, requisesFaites = 0;
     for (const q of rub.questions) {
       if (!estAffichee(q, reponses, ref)) continue;
       const r = reponses[q.code];
-      total++;
       const repondue = estRepondue(q, r);
-      if (repondue || q.facultatif) repondues++;
-      if (!repondue && !q.facultatif) sansReponse.push(q);
+      if (q.type !== 'evaluation') {
+        total++;
+        if (aUneSaisie(q, r)) repondues++;
+      }
+      if (estObligatoire(q)) {
+        requises++;
+        if (repondue) requisesFaites++;
+        else sansReponse.push(q);
+      }
       applicables += q.points_max;
       if (q.note_par_experts) experts += q.points_max;
       obtenus += pointsQuestion(q, r);
       if (q.statut === 'eliminatoire' && repondue && !estPositive(q, r)) eliminatoires.push(q);
       if (justificatifManquant(q, r, pieces)) manquants.push(q);
     }
-    return { numero: rub.numero, total, repondues };
+    return { numero: rub.numero, total, repondues, requises, requisesFaites };
   });
   const eliminatoireManquantes = manquants.filter((q) => q.statut === 'eliminatoire');
   return {

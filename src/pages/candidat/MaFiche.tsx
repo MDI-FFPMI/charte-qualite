@@ -18,7 +18,7 @@ function depuisDossier(r: Reponses): FicheSaisie {
   return {
     publie: false, nom_affiche: [vous.prenom, vous.nom].filter(Boolean).join(' '), entreprise: ent.nom_commercial || ent.denomination || '',
     ville: ent.ville ?? '', code_postal: ent.cp ?? '', specialites: spe.choisies ?? [], principales: principalesDe(r['2.2']?.valeur),
-    presentation: '', site: web.site ?? '', instagram: web.instagram ?? '', telephone: '', email_contact: '', photo_path: null,
+    presentation: '', site: web.site ?? '', instagram: web.instagram ?? '', telephone: '', email_contact: '', photo_path: null, logo_path: null,
   };
 }
 
@@ -28,10 +28,12 @@ export default function MaFiche({ reponses, statut }: { reponses: Reponses; stat
   const [enregistree, setEnregistree] = useState<Fiche | null>(null);
   const [etat, setEtat] = useState<'' | 'encours' | 'ok' | string>('');
   const [photoEtat, setPhotoEtat] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoEtat, setLogoEtat] = useState('');
 
   useEffect(() => {
     annuaire.maFiche().then((m) => {
-      if (m) { setF(m); setPhotoUrl(m.photo_url ?? null); setEnregistree(m); } else setF(depuisDossier(reponses));
+      if (m) { setF(m); setPhotoUrl(m.photo_url ?? null); setLogoUrl(m.logo_url ?? null); setEnregistree(m); } else setF(depuisDossier(reponses));
     }).catch(() => setF(depuisDossier(reponses)));
   }, [reponses]);
 
@@ -52,6 +54,22 @@ export default function MaFiche({ reponses, statut }: { reponses: Reponses; stat
       setPhotoEtat('Photo ajoutée. Pensez à enregistrer la fiche.');
     } catch (err) { setPhotoEtat((err as Error).message); }
   };
+
+  const logo = async (e: ChangeEvent<HTMLInputElement>) => {
+    const fichier = e.target.files?.[0];
+    e.target.value = '';
+    if (!fichier) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(fichier.type)) { setLogoEtat('Format accepté : PNG (idéalement sur fond transparent), JPG ou WebP.'); return; }
+    if (fichier.size > 5 * 1024 * 1024) { setLogoEtat('Le logo dépasse 5 Mo.'); return; }
+    setLogoEtat('Envoi…');
+    try {
+      const chemin = await annuaire.deposerLogo(fichier);
+      setF((x) => (x ? { ...x, logo_path: chemin } : x));
+      setLogoUrl(URL.createObjectURL(fichier));
+      setLogoEtat('Logo ajouté. Pensez à enregistrer la fiche.');
+    } catch (err) { setLogoEtat((err as Error).message); }
+  };
+  const retirerLogo = () => { setF({ ...f, logo_path: null }); setLogoUrl(null); setLogoEtat('Logo retiré. Pensez à enregistrer la fiche.'); };
 
   const enregistrer = async (e: FormEvent) => {
     e.preventDefault();
@@ -91,6 +109,26 @@ export default function MaFiche({ reponses, statut }: { reponses: Reponses; stat
       </div>
 
       <div className="carte pile">
+        <h2 style={{ fontSize: '1.05rem' }}>Le logo de votre studio <span className="discret petit" style={{ fontWeight: 400 }}>(facultatif)</span></h2>
+        <div className="ligne" style={{ gap: '1.25rem' }}>
+          <div className="logo-studio-cadre" style={{ width: 160, height: 90 }}>
+            {logoUrl ? <img src={logoUrl} alt="Logo du studio" /> : <span className="petit discret">Aucun logo</span>}
+          </div>
+          <div className="pile" style={{ gap: '.4rem' }}>
+            <div className="ligne" style={{ gap: '.5rem' }}>
+              <label className="depot" style={{ alignSelf: 'flex-start' }}>
+                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={logo} />
+                {logoUrl ? 'Changer de logo' : '+ Ajouter un logo'}
+              </label>
+              {logoUrl && <button type="button" className="bouton secondaire petit-btn" onClick={retirerLogo}>Retirer</button>}
+            </div>
+            <span className="petit discret">PNG sur fond transparent de préférence, sinon JPG ou WebP. 5 Mo maximum. Il s'affiche sur votre fiche, à côté du nom de votre studio.</span>
+            {logoEtat && <span className="petit" role="status">{logoEtat}</span>}
+          </div>
+        </div>
+      </div>
+
+      <div className="carte pile">
         <h2 style={{ fontSize: '1.05rem' }}>Ce qui apparaîtra sur votre fiche</h2>
         <div className="champs-grille">
           <label className="champ">Nom affiché<input value={f.nom_affiche} onChange={maj('nom_affiche')} required /></label>
@@ -120,7 +158,7 @@ export default function MaFiche({ reponses, statut }: { reponses: Reponses; stat
       <label className="encadre-charte-case">
         <input type="checkbox" checked={f.publie} onChange={(e) => setF({ ...f, publie: e.target.checked })} />
         <span>
-          J'accepte que cette fiche, avec ma photo, soit publiée sur la carte des titulaires du site Photographe Professionnel de France,
+          J'accepte que cette fiche, avec ma photo et mon logo, soit publiée sur la carte des titulaires du site Photographe Professionnel de France,
           dès que la Charte m'est accordée et tant qu'elle est valide. Je peux retirer mon accord à tout moment en décochant cette case.
         </span>
       </label>
