@@ -487,10 +487,14 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .guide-contenu .guide-volet ul:has(> li > input[type=checkbox]) { padding-left: .1rem; list-style: none; }
 .guide-contenu .guide-tableau { border-radius: 12px; border: 1px solid var(--trait); }
 
-/* ---------- Site public : texte justifié, pleine largeur ---------- */
-.site-main p, .site-main li, .site-pied p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
-.site-main p, .site-main .texte-long, .site-main .chapo { max-width: none !important; }
+/* ---------- Site public : texte justifié, largeur de lecture confortable ---------- */
+.site-main p, .site-main li, .site-pied p { text-align: justify; hyphens: manual; -webkit-hyphens: manual; text-wrap: pretty; }
+.site-main p, .site-main .chapo { max-width: 85ch !important; }
+.site-main .texte-long { max-width: 85ch !important; }
 .site-main .hero-texte p { max-width: 52ch !important; }
-.hero-texte .hero-prix { margin: 1.1rem 0 0; font-size: .9rem; color: var(--discret); letter-spacing: .01em; text-align: left; }
 .site-main .bouton, .site-main th, .site-main td { text-align: left; }
 .site-main .bouton { text-align: center; }
+.tarif-discret { margin: .5rem 0 0; font-size: .88rem; color: var(--discret); }
+/* Colonnes étroites : alignement à gauche pour éviter les grands espaces entre les mots */
+.site-main .pourquoi-item p, .site-main .etapes-ligne li, .site-main .rgpd-finalite p, .site-main .rgpd-parcours li,
+.site-main .carte-lien p, .site-main .annuaire-carte, .site-main .tarif-discret, .site-main .liste-nette li { text-align: left; }

@@ -29,7 +29,6 @@ export default function Accueil() {
             <BoutonDeposer className="bouton deposer hero-btn">Je dépose ma candidature</BoutonDeposer>
             <Link to="/la-charte" className="bouton hero-btn hero-btn-contour">En savoir plus</Link>
           </div>
-          <p className="hero-prix">199 € pour 2 ans · 149 € pour les adhérents FFPMI</p>
         </div>
         <PhotoForme src={photo} />
       </section>
@@ -78,6 +77,7 @@ export default function Accueil() {
         <ol className="etapes-ligne">
           {ETAPES.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
         </ol>
+        <p className="tarif-discret">Candidature : 199 € pour 2 ans de validité, 149 € pour les adhérents de la FFPMI.</p>
       </section>
       <EncartDonnees />
     </Site>
