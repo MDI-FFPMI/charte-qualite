@@ -1216,10 +1216,18 @@
         },
         {
           "code": "8.7",
-          "libelle": "Vérifiez-vous vous-même chaque image retouchée avec un outil d'IA avant de la livrer ?",
-          "type": "yes_no",
+          "libelle": "Les images de votre portfolio et de vos réseaux qui ont été générées ou fortement modifiées par IA sont-elles signalées comme telles ?",
+          "aide": "Un futur client choisit son photographe sur son portfolio : il doit pouvoir distinguer ce que vous produisez à la prise de vue de ce qui a été créé ou transformé par IA. Une retouche courante (peau, lumière, couleurs) n'est pas concernée.",
+          "type": "choice",
+          "options": [
+            { "value": "oui", "label": "Oui, elles sont signalées", "points": 2 },
+            { "value": "non", "label": "Non", "points": 0 },
+            { "value": "non-concerne", "label": "Non concerné : je ne publie pas d'images générées ou fortement modifiées par IA", "points": 0, "neutre": true }
+          ],
           "statut": "valorise",
           "points_max": 2,
+          "justificatifs": "Lien vers une publication ou une page de votre site où la mention apparaît",
+          "preuve_attendue": true,
           "condition": {
             "q": "8.5",
             "op": "has_other_than",

@@ -121,7 +121,7 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
               <label key={o.value}>
                 <input type="radio" name={`${id}-c`} checked={r.valeur === o.value} disabled={verrouille} onChange={() => maj({ valeur: o.value })} />
                 {o.label}
-                {q.statut !== 'informatif' && <span className="pts-option num">{o.points} pt{o.points > 1 ? 's' : ''}</span>}
+                {q.statut !== 'informatif' && <span className="pts-option num">{o.neutre ? 'retiré du calcul' : `${o.points} pt${o.points > 1 ? 's' : ''}`}</span>}
               </label>
             ))}
           </div>

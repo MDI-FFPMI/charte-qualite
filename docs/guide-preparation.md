@@ -184,14 +184,16 @@ Un boîtier de secours, l'enregistrement sur deux cartes ou le transfert immédi
 - Ai-je une politique de confidentialité sur mon site ? Combien de temps je garde les fichiers et les données de mes clients ?
 - Ai-je une autorisation écrite pour chaque image que je publie, signée par les deux parents pour un enfant ?
 - J'utilise des outils d'IA pour la retouche : mes clients le savent-ils ?
+- Mon portfolio montre-t-il ce que je sais vraiment produire ? Les images générées ou fortement modifiées par IA y sont-elles signalées ?
 
 **Ce que la commission attend**
 
-Les droits d'utilisation écrits, une politique de confidentialité conforme au RGPD et l'autorisation de diffusion sont obligatoires. L'information sur la durée de conservation et la transparence sur l'IA rapportent des points.
+Les droits d'utilisation écrits, une politique de confidentialité conforme au RGPD et l'autorisation de diffusion sont obligatoires. L'information sur la durée de conservation et la transparence sur l'IA, envers vos clients comme dans votre portfolio, rapportent des points.
 
 **Pour progresser**
 
 - Ajoutez une clause claire sur l'IA dans vos CGV : quels outils, pour quelles retouches, et l'engagement de vérifier chaque image.
+- Signalez dans votre portfolio et sur vos réseaux les images générées ou fortement transformées par IA (une mention « image modifiée par IA » en légende suffit). Un client qui réserve sur la foi d'une image doit savoir ce qu'il achète.
 - Précisez la durée de conservation de vos fichiers (par exemple 1 an après la livraison) : vos clients sauront qu'ils doivent sauvegarder leurs images.
 - Ne publiez jamais un enfant sans l'accord écrit de ses deux parents.
 

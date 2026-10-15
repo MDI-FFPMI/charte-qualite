@@ -173,6 +173,11 @@ export function aUneSaisie(q: Question, r: Reponse | undefined): boolean {
   return estRepondue(q, r);
 }
 
+/** Réponse « non concerné » : ni gain ni perte, les points de la question sont retirés du calcul */
+export function estNeutre(q: Question, r: Reponse | undefined): boolean {
+  return q.type === 'choice' && !!q.options?.find((o) => o.value === r?.valeur)?.neutre;
+}
+
 export function bilanDossier(ref: Referentiel, reponses: Reponses, pieces: Piece[], attestationsCochees: boolean): Bilan {
   const base = ref.version.base_score;
   let obtenus = 0, applicables = 0, experts = 0;
@@ -201,6 +206,11 @@ export function bilanDossier(ref: Referentiel, reponses: Reponses, pieces: Piece
         continue;
       }
       const r = reponses[q.code];
+      if (estNeutre(q, r)) {
+        total++; saisies++; repondues++;
+        if (estObligatoire(q)) { requises++; requisesFaites++; }
+        continue;
+      }
       const repondue = estRepondue(q, r);
       // Une réponse qui appelle un justificatif n'est complète qu'avec ce justificatif
       const manque = justificatifManquant(q, r, pieces);

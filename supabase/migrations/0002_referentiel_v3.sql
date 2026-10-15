@@ -229,7 +229,7 @@ select 'V3', id, '8.6', 6, 'Informez-vous vos clients de cet usage de l''IA ?', 
 from rubriques where version_id = 'V3' and numero = 8
 on conflict (version_id, code) do nothing;
 insert into questions (version_id, rubrique_id, code, ordre, libelle, aide, type, options, statut, points_max, note_par_experts, justificatifs, preuve_attendue, facultatif, condition, complements, champs, source)
-select 'V3', id, '8.7', 7, 'Vérifiez-vous vous-même chaque image retouchée avec un outil d''IA avant de la livrer ?', null, 'yes_no', '[]'::jsonb, 'valorise', 2, false, null, false, false, '{"q":"8.5","op":"has_other_than","value":"aucun"}'::jsonb, '[]'::jsonb, '[]'::jsonb, null
+select 'V3', id, '8.7', 7, 'Les images de votre portfolio et de vos réseaux qui ont été générées ou fortement modifiées par IA sont-elles signalées comme telles ?', 'Un futur client choisit son photographe sur son portfolio : il doit pouvoir distinguer ce que vous produisez à la prise de vue de ce qui a été créé ou transformé par IA. Une retouche courante (peau, lumière, couleurs) n''est pas concernée.', 'choice', '[{"value":"oui","label":"Oui, elles sont signalées","points":2},{"value":"non","label":"Non","points":0},{"value":"non-concerne","label":"Non concerné : je ne publie pas d''images générées ou fortement modifiées par IA","points":0,"neutre":true}]'::jsonb, 'valorise', 2, false, 'Lien vers une publication ou une page de votre site où la mention apparaît', true, false, '{"q":"8.5","op":"has_other_than","value":"aucun"}'::jsonb, '[]'::jsonb, '[]'::jsonb, null
 from rubriques where version_id = 'V3' and numero = 8
 on conflict (version_id, code) do nothing;
 

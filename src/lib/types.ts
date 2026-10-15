@@ -3,7 +3,8 @@ export type TypeQuestion =
   | 'yes_no' | 'choice' | 'multi_choice' | 'text' | 'year'
   | 'url_list' | 'specialites' | 'materiel' | 'coordonnees' | 'evaluation';
 
-export interface Option { value: string; label: string; points: number; exclusive?: boolean }
+/** neutre : réponse « non concerné », la question est complète et ses points sont retirés du calcul */
+export interface Option { value: string; label: string; points: number; exclusive?: boolean; neutre?: boolean }
 
 export interface Condition {
   q: string;

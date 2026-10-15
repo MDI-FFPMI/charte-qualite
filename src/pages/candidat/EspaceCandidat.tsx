@@ -8,7 +8,7 @@ import MaFiche from './MaFiche';
 import { CHARTE_VERSION } from '../../data/charte-deontologie';
 import { api, lienPaiementPour, type Dossier } from '../../lib/api';
 import { useSession } from '../../App';
-import { bilanDossier, estAffichee, estRepondue, valeursChoisies } from '../../lib/scoring';
+import { bilanDossier, estAffichee, estNeutre, estRepondue, valeursChoisies } from '../../lib/scoring';
 import type { Piece, Referentiel, Reponse, Reponses } from '../../lib/types';
 
 const ref = refJson as Referentiel;
@@ -239,7 +239,7 @@ function QuestionMasquee({ q, reponses }: { q: Referentiel['rubriques'][number][
       </div>
       <p className="petit discret" style={{ margin: '.3rem 0 0' }}>
         {tranchee
-          ? `D'après votre réponse à la question ${parent}, cette question ne vous concerne pas. Elle est comptée comme complète.`
+          ? `D'après votre réponse à la question ${parent}, cette question ne vous concerne pas. Elle est comptée comme complète${q.points_max > 0 ? `, et ses ${q.points_max} point${q.points_max > 1 ? 's sont retirés' : ' est retiré'} du calcul : votre score n'est pas pénalisé` : ''}.`
           : `Cette question s'affichera ou non selon votre réponse à la question ${parent}.`}
       </p>
     </article>
@@ -269,6 +269,10 @@ function PageRubrique({ e }: { e: Etat }) {
             <p className="petit discret num" style={{ margin: 0 }}>
               {p.total} question{p.total > 1 ? 's' : ''}{sansImpact ? `, dont ${sansImpact} sans impact sur le score` : ''}
               {p.points > 0 && ` · ${p.points} point${p.points > 1 ? 's' : ''} possibles`}
+              {(() => {
+                const retires = rub.questions.filter((q) => !visibles.includes(q) || estNeutre(q, e.reponses[q.code])).reduce((t, q) => t + q.points_max, 0);
+                return retires > 0 ? ` (${retires} point${retires > 1 ? 's' : ''} retiré${retires > 1 ? 's' : ''} car non concerné, sans effet sur votre score)` : '';
+              })()}
               {' · '}{p.repondues} complète{p.repondues > 1 ? 's' : ''} sur {p.total}
               {p.saisies > p.repondues && <span style={{ color: 'var(--critique)' }}> · {p.saisies - p.repondues} justificatif{p.saisies - p.repondues > 1 ? 's' : ''} à déposer</span>}
             </p>
