@@ -2,7 +2,7 @@
 // emplacement pour les avis (contrôle FFPMI ou vérification expert).
 import { useState, type ReactNode } from 'react';
 import refJson from '../data/referentiel-v3.json';
-import { estAffichee, estPositive, principalesDe } from '../lib/scoring';
+import { compterMateriel, estAffichee, estPositive, principalesDe } from '../lib/scoring';
 import { equipe, type Avis, type AvisLigne } from '../lib/equipe';
 import type { MaterielLigne, Piece, Question, Referentiel, Reponse, Reponses } from '../lib/types';
 
@@ -64,9 +64,9 @@ function Valeur({ q, r }: { q: Question; r: Reponse | undefined }) {
   }
 }
 
-function Complements({ q, r }: { q: Question; r: Reponse | undefined }) {
+function Complements({ q, r, reponses }: { q: Question; r: Reponse | undefined; reponses: Reponses }) {
   const lignes = (q.complements ?? []).map((c) => {
-    const v = r?.complements?.[c.key];
+    const v = c.type === 'compte' ? compterMateriel(reponses, c.source, c.filtre) : r?.complements?.[c.key];
     if (v == null || v === '') return null;
     const texte = typeof v === 'object'
       ? Object.entries(v as Record<string, string>).filter(([, x]) => x).map(([k, x]) => `${libSpe(k)} : ${x}`).join(' · ')
@@ -158,7 +158,7 @@ export default function VueDossier({ reponses, pieces, panneau, seulementJustifi
                       {q.points_max > 0 && <span className="badge pts num">{q.points_max} pts</span>}
                     </div>
                     <div><Valeur q={q} r={r} /></div>
-                    <Complements q={q} r={r} />
+                    <Complements q={q} r={r} reponses={reponses} />
                     {verif && (
                       <div className="pile" style={{ gap: '.3rem' }}>
                         {q.justificatifs && <span className="petit discret">Attendu : {q.justificatifs}</span>}

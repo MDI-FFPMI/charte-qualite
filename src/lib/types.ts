@@ -16,8 +16,10 @@ export interface Condition {
 export interface Complement {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'par_specialite';
+  type: 'text' | 'number' | 'par_specialite' | 'compte';
   si?: string; // affiché seulement si la valeur principale vaut ceci
+  source?: string; // type compte : question de type matériel dont on compte les lignes
+  filtre?: string; // type compte : type de matériel compté (ex. « Boîtier »)
 }
 
 export interface ChampCoordonnees {

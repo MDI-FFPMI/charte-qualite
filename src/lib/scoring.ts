@@ -251,3 +251,9 @@ export function bilanDossier(ref: Referentiel, reponses: Reponses, pieces: Piece
 export function scoreFinal(pointsValides: number, noteExperts: number, applicables: number, base = 150): number {
   return applicables ? Math.round(((pointsValides + noteExperts) / applicables) * base * 10) / 10 : 0;
 }
+
+/** Nombre de lignes d'un tableau de matériel, d'un type donné (ex. les boîtiers déclarés en 7.1) */
+export function compterMateriel(reponses: Reponses, source = '', filtre = ''): number {
+  const v = reponses[source]?.valeur;
+  return Array.isArray(v) ? v.filter((l) => typeof l === 'object' && l && (l as { type?: string; modele?: string }).type === filtre && (l as { modele?: string }).modele?.trim()).length : 0;
+}

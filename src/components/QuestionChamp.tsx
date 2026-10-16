@@ -1,6 +1,6 @@
 import { useId, useState, type ChangeEvent } from 'react';
 import type { MaterielLigne, Piece, Question, Referentiel, Reponse, Reponses } from '../lib/types';
-import { erreurChamp, estPositive, estRepondue, justificatifManquant, MAX_PRINCIPALES, principalesDe } from '../lib/scoring';
+import { compterMateriel, erreurChamp, estPositive, estRepondue, justificatifManquant, MAX_PRINCIPALES, principalesDe } from '../lib/scoring';
 
 interface Props {
   q: Question;
@@ -32,6 +32,8 @@ export function BadgeStatut({ q }: { q: Question }) {
 export default function QuestionChamp({ q, referentiel: ref, reponse, toutesReponses = {}, specialitesChoisies, pieces, verrouille, onChange, onDepot, onRetirer }: Props) {
   const id = useId();
   const [depot, setDepot] = useState<'' | 'envoi' | string>('');
+  // Type choisi pour la ligne vide du tableau de matériel, avant que le modèle soit saisi
+  const [typeNouveau, setTypeNouveau] = useState('Boîtier');
   const r: Reponse = reponse ?? { valeur: null };
   const maj = (p: Partial<Reponse>) => onChange({ ...r, ...p });
   const majComp = (cle: string, v: unknown) => maj({ complements: { ...(r.complements ?? {}), [cle]: v } });
@@ -235,8 +237,10 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
       }
       case 'materiel': {
         const lignes = (Array.isArray(r.valeur) ? (r.valeur as MaterielLigne[]) : []).concat();
-        const affichees = [...lignes, { type: 'Boîtier', modele: '', annee: '' }];
+        const affichees = [...lignes, { type: typeNouveau, modele: '', annee: '' }];
         const majLigne = (i: number, l: MaterielLigne) => {
+          // Ligne vide : on retient seulement le type choisi, la ligne sera créée à la saisie du modèle
+          if (i === lignes.length && !l.modele.trim() && !l.annee) { setTypeNouveau(l.type); return; }
           const s = [...lignes]; s[i] = l;
           maj({ valeur: s.filter((x) => x.modele.trim() || x.annee) });
         };
@@ -300,6 +304,12 @@ export default function QuestionChamp({ q, referentiel: ref, reponse, toutesRepo
                 </label>
               );
             })}
+          </div>
+        ) : c.type === 'compte' ? (
+          <div key={c.key} className="champ" style={{ maxWidth: 420 }}>
+            <span>{c.label}</span>
+            <strong className="num" style={{ fontSize: '1.1rem' }}>{compterMateriel(toutesReponses, c.source, c.filtre)}</strong>
+            <span className="aide">Calculé automatiquement d'après votre liste de matériel (question {c.source}).</span>
           </div>
         ) : (
           <label key={c.key} className="champ" style={{ maxWidth: c.type === 'number' ? 260 : undefined }}>

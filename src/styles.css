@@ -130,7 +130,7 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .message.erreur { background: var(--critique-doux); color: var(--critique); }
 .message.ok { background: var(--bien-doux); color: var(--bien); }
 .message.att { background: var(--attention-doux); color: var(--attention); }
-.message.info { background: var(--accent-doux); color: var(--marine); }
+.message.info { background: var(--accent-doux); color: var(--accent); }
 
 /* ---------- Accueil public ---------- */
 .accueil-tete { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; padding-block: 1.5rem 2.5rem; }
@@ -254,7 +254,7 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .encadre-charte-case { display: flex; gap: .6rem; align-items: flex-start; font-weight: 700; background: var(--fond); border: 1px solid var(--marine); border-radius: 6px; padding: .75rem .9rem; cursor: pointer; }
 .encadre-charte-case input { width: 1.15rem; height: 1.15rem; margin-top: .15rem; accent-color: var(--marine); flex: none; }
 .encadre-charte-case:has(input:disabled) { opacity: .6; cursor: not-allowed; }
-.encadre-charte-phrase { margin: 0; padding: .7rem 1rem; background: var(--fond); border-left: 3px solid var(--rouge); font-style: italic; font-weight: 600; color: var(--marine); }
+.encadre-charte-phrase { margin: 0; padding: .7rem 1rem; background: var(--fond); border-left: 3px solid var(--rouge); font-style: italic; font-weight: 600; color: var(--accent); }
 .encadre-charte-engagement .saisie { padding: .7rem .85rem; font-size: 1rem; }
 
 /* ---------- Site public ---------- */
@@ -478,8 +478,8 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .guide-volet { border-left: 4px solid var(--trait); background: var(--surface); border-radius: 0 10px 10px 0; padding: .8rem 1.1rem; }
 .guide-volet ul { margin: .2rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .35rem; }
 .guide-volet > p:not(.volet) { margin: .2rem 0 0; }
-.guide-volet.q { border-left-color: var(--marine); }
-.guide-volet.q .volet { color: var(--marine); }
+.guide-volet.q { border-left-color: var(--accent); }
+.guide-volet.q .volet { color: var(--accent); }
 .guide-volet.c { border-left-color: var(--rouge); background: var(--critique-doux); }
 .guide-volet.c .volet { color: var(--critique); }
 .guide-volet.p { border-left-color: var(--bien); background: var(--bien-doux); }
@@ -512,7 +512,7 @@ table.tableau { border-collapse: collapse; width: 100%; font-size: .88rem; }
 .liste-blocages a { font-weight: 700; }
 .etiquette-blocage { display: inline-block; font-size: .75rem; font-weight: 700; padding: .15rem .55rem; border-radius: 999px; white-space: nowrap; }
 .etiquette-blocage.justificatif, .etiquette-blocage.condition { background: var(--critique-doux); color: var(--critique); }
-.etiquette-blocage.reponse { background: var(--accent-doux); color: var(--marine); }
+.etiquette-blocage.reponse { background: var(--accent-doux); color: var(--accent); }
 .etiquette-blocage.points { background: var(--attention-doux); color: var(--attention); }
 @media (max-width: 600px) { .liste-blocages li { grid-template-columns: 3rem 1fr; } .liste-blocages li > span:last-child { grid-column: 1 / -1; } }
 

@@ -583,7 +583,7 @@
       "questions": [
         {
           "code": "4.1",
-          "libelle": "Partagez trois galeries complètes de séances récentes (moins de 24 mois), telles que livrées à vos clients",
+          "libelle": "Partagez trois galeries complètes de séances ou reportages récents (moins de 24 mois), telles que livrées à vos clients",
           "type": "url_list",
           "statut": "valorise",
           "points_max": 20,
@@ -790,7 +790,7 @@
         },
         {
           "code": "5.9",
-          "libelle": "Comment préparez-vous vos clients avant la séance ?",
+          "libelle": "Comment préparez-vous vos clients avant la prise de vue ?",
           "type": "choice",
           "statut": "valorise",
           "points_max": 2,
@@ -936,36 +936,36 @@
         },
         {
           "code": "6.3",
-          "libelle": "Quelle est votre tranche de chiffre d'affaires annuel ?",
+          "libelle": "Quelle est votre tranche de chiffre d'affaires annuel hors taxes (HT) ?",
           "type": "choice",
           "statut": "informatif",
           "points_max": 0,
           "facultatif": true,
-          "aide": "Utilisé uniquement pour des statistiques anonymes, jamais transmis à la commission.",
+          "aide": "Chiffre d'affaires hors taxes, sur votre dernier exercice complet. Utilisé uniquement pour des statistiques anonymes, jamais transmis à la commission.",
           "options": [
             {
               "value": "lt20k",
-              "label": "Moins de 20 000 €",
+              "label": "Moins de 20 000 € HT",
               "points": 0
             },
             {
               "value": "20-40k",
-              "label": "20 000 à 40 000 €",
+              "label": "20 000 à 40 000 € HT",
               "points": 0
             },
             {
               "value": "40-80k",
-              "label": "40 000 à 80 000 €",
+              "label": "40 000 à 80 000 € HT",
               "points": 0
             },
             {
               "value": "80-150k",
-              "label": "80 000 à 150 000 €",
+              "label": "80 000 à 150 000 € HT",
               "points": 0
             },
             {
               "value": "gt150k",
-              "label": "Plus de 150 000 €",
+              "label": "Plus de 150 000 € HT",
               "points": 0
             }
           ]
@@ -1009,7 +1009,7 @@
         },
         {
           "code": "7.2",
-          "libelle": "Quelle solution avez-vous en cas de panne de matériel pendant une séance ?",
+          "libelle": "Quelle solution avez-vous en cas de panne de matériel pendant une prise de vue ?",
           "type": "choice",
           "statut": "valorise",
           "points_max": 3,
@@ -1065,11 +1065,13 @@
             {
               "key": "nb_boitiers",
               "label": "Nombre de boîtiers",
-              "type": "number"
+              "type": "compte",
+              "source": "7.1",
+              "filtre": "Boîtier"
             },
             {
               "key": "nb_double_slot",
-              "label": "Dont équipés d'un double emplacement de carte",
+              "label": "Parmi eux, combien ont un double emplacement de carte ?",
               "type": "number"
             },
             {
@@ -1081,7 +1083,7 @@
         },
         {
           "code": "7.4",
-          "libelle": "Combien de copies de vos fichiers conservez-vous après la séance, et où ?",
+          "libelle": "Combien de copies de vos fichiers conservez-vous après la prise de vue, et où ?",
           "type": "multi_choice",
           "statut": "valorise",
           "points_max": 3,
@@ -1114,7 +1116,7 @@
         },
         {
           "code": "7.5",
-          "libelle": "Avez-vous prévu une solution en cas d'incident (perte de fichiers, empêchement le jour de la séance) ?",
+          "libelle": "Avez-vous prévu une solution en cas d'incident (perte de fichiers, empêchement le jour de la prise de vue) ?",
           "type": "yes_no",
           "statut": "valorise",
           "points_max": 1,
@@ -1220,9 +1222,22 @@
           "aide": "Un futur client choisit son photographe sur son portfolio : il doit pouvoir distinguer ce que vous produisez à la prise de vue de ce qui a été créé ou transformé par IA. Une retouche courante (peau, lumière, couleurs) n'est pas concernée.",
           "type": "choice",
           "options": [
-            { "value": "oui", "label": "Oui, elles sont signalées", "points": 2 },
-            { "value": "non", "label": "Non", "points": 0 },
-            { "value": "non-concerne", "label": "Non concerné : je ne publie pas d'images générées ou fortement modifiées par IA", "points": 0, "neutre": true }
+            {
+              "value": "oui",
+              "label": "Oui, elles sont signalées",
+              "points": 2
+            },
+            {
+              "value": "non",
+              "label": "Non",
+              "points": 0
+            },
+            {
+              "value": "non-concerne",
+              "label": "Non concerné : je ne publie pas d'images générées ou fortement modifiées par IA",
+              "points": 0,
+              "neutre": true
+            }
           ],
           "statut": "valorise",
           "points_max": 2,
@@ -1273,6 +1288,11 @@
             {
               "value": "itinerant",
               "label": "Uniquement chez le client ou en extérieur",
+              "points": 0
+            },
+            {
+              "value": "visio",
+              "label": "Rendez-vous surtout en visio, prise de vue chez le client ou en extérieur",
               "points": 0
             }
           ]
@@ -1357,12 +1377,17 @@
           "type": "multi_choice",
           "statut": "valorise",
           "points_max": 5,
-          "justificatifs": "Attestation ou contrat de l'organisme, programme, affiche, convention de stage, lien",
+          "justificatifs": "Certificat Qualiopi (le vôtre ou celui de l'organisme), attestation ou contrat de l'organisme, programme, affiche, convention de stage, lien",
           "preuve_attendue": true,
           "options": [
             {
               "value": "qualiopi",
               "label": "Formateur pour un organisme certifié Qualiopi",
+              "points": 3
+            },
+            {
+              "value": "independant-qualiopi",
+              "label": "Formateur indépendant certifié Qualiopi",
               "points": 3
             },
             {
